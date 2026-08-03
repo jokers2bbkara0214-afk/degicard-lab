@@ -1,1 +1,104 @@
-[]
+[
+  {
+    "id": "BT1-010",
+    "name": "アグモン",
+    "cardType": "デジモン",
+    "colors": ["赤"],
+    "level": 3,
+    "playCost": 3,
+    "dp": 2000,
+    "digivolutionCosts": [
+      {
+        "color": "赤",
+        "level": 2,
+        "cost": 0
+      }
+    ],
+    "form": "成長期",
+    "attribute": "ワクチン種",
+    "traits": ["爬虫類型"],
+    "rarity": "U",
+    "set": "BT-01",
+    "effect": "",
+    "inheritedEffect": "【自分のターン】このデジモンのDPを+1000する。",
+    "securityEffect": "",
+    "image": "",
+    "deckLimit": 4,
+    "isDigiEgg": false
+  },
+  {
+    "id": "BT1-015",
+    "name": "グレイモン",
+    "cardType": "デジモン",
+    "colors": ["赤"],
+    "level": 4,
+    "playCost": 5,
+    "dp": 4000,
+    "digivolutionCosts": [
+      {
+        "color": "赤",
+        "level": 3,
+        "cost": 2
+      }
+    ],
+    "form": "成熟期",
+    "attribute": "ワクチン種",
+    "traits": ["恐竜型"],
+    "rarity": "C",
+    "set": "BT-01",
+    "effect": "",
+    "inheritedEffect": "",
+    "securityEffect": "",
+    "image": "",
+    "deckLimit": 4,
+    "isDigiEgg": false
+  },
+  {
+    "id": "BT1-085",
+    "name": "八神太一",
+    "cardType": "テイマー",
+    "colors": ["赤"],
+    "level": null,
+    "playCost": 4,
+    "dp": null,
+    "digivolutionCosts": [],
+    "form": "",
+    "attribute": "",
+    "traits": [],
+    "rarity": "R",
+    "set": "BT-01",
+    "effect": "自分のターン開始時、メモリーが2以下なら3にする。",
+    "inheritedEffect": "",
+    "securityEffect": "このカードをコストを支払わずに登場させる。",
+    "image": "",
+    "deckLimit": 4,
+    "isDigiEgg": false
+  },
+  {
+    "id": "BT1-114",
+    "name": "メタルグレイモン",
+    "cardType": "デジモン",
+    "colors": ["赤"],
+    "level": 5,
+    "playCost": 7,
+    "dp": 7000,
+    "digivolutionCosts": [
+      {
+        "color": "赤",
+        "level": 4,
+        "cost": 3
+      }
+    ],
+    "form": "完全体",
+    "attribute": "ウィルス種",
+    "traits": ["サイボーグ型"],
+    "rarity": "SR",
+    "set": "BT-01",
+    "effect": "",
+    "inheritedEffect": "",
+    "securityEffect": "",
+    "image": "",
+    "deckLimit": 4,
+    "isDigiEgg": false
+  }
+]

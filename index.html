@@ -41,9 +41,55 @@
         </div>
     </section>
 
-    <section id="cards" class="page">
-        <h1>カード図鑑</h1>
-    </section>
+<section id="cards" class="page">
+    <div class="page-header">
+        <div>
+            <p class="eyebrow">CARD DATABASE</p>
+            <h1>カード図鑑</h1>
+        </div>
+
+        <p id="cardCount" class="result-count">0件</p>
+    </div>
+
+    <div class="filter-panel">
+        <input
+            id="searchInput"
+            type="search"
+            placeholder="カード名・カード番号で検索"
+        >
+
+        <select id="colorFilter">
+            <option value="">すべての色</option>
+            <option value="赤">赤</option>
+            <option value="青">青</option>
+            <option value="黄">黄</option>
+            <option value="緑">緑</option>
+            <option value="黒">黒</option>
+            <option value="紫">紫</option>
+            <option value="白">白</option>
+        </select>
+
+        <select id="typeFilter">
+            <option value="">すべての種類</option>
+            <option value="デジモン">デジモン</option>
+            <option value="デジタマ">デジタマ</option>
+            <option value="テイマー">テイマー</option>
+            <option value="オプション">オプション</option>
+        </select>
+
+        <select id="levelFilter">
+            <option value="">すべてのレベル</option>
+            <option value="2">Lv.2</option>
+            <option value="3">Lv.3</option>
+            <option value="4">Lv.4</option>
+            <option value="5">Lv.5</option>
+            <option value="6">Lv.6</option>
+            <option value="7">Lv.7</option>
+        </select>
+    </div>
+
+    <div id="cardList" class="card-grid"></div>
+</section>
 
     <section id="deck" class="page">
         <h1>デッキ構築</h1>
