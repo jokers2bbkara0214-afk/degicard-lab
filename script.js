@@ -23,6 +23,7 @@ let toastTimer = null;
 
 let radarChartInstance = null;
 let scoreBarChartInstance = null;
+let scoreAnimationFrame = null;
 
 /* カード図鑑 */
 
@@ -104,6 +105,9 @@ const overallRank =
 
 const overallMessage =
     document.getElementById("overallMessage");
+
+const scoreStars =
+    document.getElementById("scoreStars");
 
 const analysisDeckTotal =
     document.getElementById("analysisDeckTotal");
@@ -1629,28 +1633,29 @@ function createDeckAdvice({
     return advice.slice(0, 8);
 }
 
-function updateAnalysisSummary(
-    analysis
-) {
-    const percentage =
-        Math.min(
-            (
-                analysis.total /
-                MAIN_DECK_LIMIT
-            ) * 100,
-            100
-        );
+function updateAnalysisSummary(analysis) {
+    const percentage = Math.min(
+        (analysis.total / MAIN_DECK_LIMIT) * 100,
+        100
+    );
 
-    overallScore.textContent =
-        analysis.overall;
+    animateOverallScore(analysis.overall);
 
     overallRank.textContent =
-        analysis.rank;
+        `${analysis.rank} RANK`;
 
     overallMessage.textContent =
-        getOverallMessage(
-            analysis.overall
+        getOverallMessage(analysis.overall);
+
+    if (scoreStars) {
+        scoreStars.textContent =
+            createScoreStars(analysis.overall);
+
+        scoreStars.setAttribute(
+            "aria-label",
+            `総合評価 ${analysis.overall}点`
         );
+    }
 
     analysisDeckTotal.textContent =
         `${analysis.total} / ${MAIN_DECK_LIMIT}`;
@@ -1673,9 +1678,7 @@ function updateAnalysisSummary(
         analysis.total > 0
             ? Math.round(
                 (
-                    analysis.typeCounts[
-                        "デジモン"
-                    ] /
+                    analysis.typeCounts["デジモン"] /
                     analysis.total
                 ) * 100
             )
@@ -1684,9 +1687,7 @@ function updateAnalysisSummary(
     analysisDigimonRatio.textContent =
         `デジモン ${digimonRatio}%`;
 
-    applyRankAppearance(
-        analysis.rank
-    );
+    applyRankAppearance(analysis.rank);
 }
 
 function applyRankAppearance(rank) {
@@ -1765,6 +1766,7 @@ function getOverallMessage(score) {
 
     if (score >= 85) {
         return "安定した構成に近づいています。";
+    
     }
 
     if (score >= 70) {
@@ -1777,6 +1779,106 @@ function getOverallMessage(score) {
 
     return "カードを追加しながら構成を育てましょう。";
 }
+function animateOverallScore(targetScore) {
+    if (!overallScore) {
+        return;
+    }
+
+    if (scoreAnimationFrame) {
+        cancelAnimationFrame(scoreAnimationFrame);
+    }
+
+    const target = Math.round(
+        clampScore(targetScore)
+    );
+
+    const startValue =
+        Number(overallScore.textContent) || 0;
+
+    const duration = 550;
+    const startTime = performance.now();
+
+    function updateScore(currentTime) {
+        const elapsed =
+            currentTime - startTime;
+
+        const progress = Math.min(
+            elapsed / duration,
+            1
+        );
+
+        const easedProgress =
+            1 - Math.pow(1 - progress, 3);
+
+        const currentValue = Math.round(
+            startValue +
+            (target - startValue) *
+            easedProgress
+        );
+
+        overallScore.textContent =
+            currentValue;
+
+        if (progress < 1) {
+            scoreAnimationFrame =
+                requestAnimationFrame(
+                    updateScore
+                );
+        } else {
+            overallScore.textContent =
+                target;
+
+            scoreAnimationFrame = null;
+        }
+    }
+
+    scoreAnimationFrame =
+        requestAnimationFrame(updateScore);
+}
+
+function createScoreStars(score) {
+    const filledStars = Math.max(
+        1,
+        Math.min(
+            5,
+            Math.ceil(score / 20)
+        )
+    );
+
+    return (
+        "★".repeat(filledStars) +
+        "☆".repeat(5 - filledStars)
+    );
+}
+
+function getBreakdownColor(label) {
+    const colorMap = {
+        "赤": "#f85149",
+        "青": "#58a6ff",
+        "黄": "#d29922",
+        "緑": "#3fb950",
+        "黒": "#6e7681",
+        "紫": "#bc8cff",
+        "白": "#f0f6fc",
+
+        "デジモン": "#58a6ff",
+        "テイマー": "#bc8cff",
+        "オプション": "#d29922",
+
+        "2": "#8b949e",
+        "3": "#3fb950",
+        "4": "#58a6ff",
+        "5": "#bc8cff",
+        "6": "#f85149",
+        "7": "#d29922"
+    };
+
+    return (
+        colorMap[String(label)] ||
+        "#58a6ff"
+    );
+}
+
 
 function renderBreakdown(
     container,
@@ -1800,33 +1902,24 @@ function renderBreakdown(
         return;
     }
 
-    const highest =
-        Math.max(
-            ...visibleLabels.map(
-                (label) =>
-                    Number(
-                        counts[label] || 0
-                    )
-            ),
-            1
-        );
+    const highest = Math.max(
+        ...visibleLabels.map(
+            (label) =>
+                Number(counts[label] || 0)
+        ),
+        1
+    );
 
     container.innerHTML =
         visibleLabels
             .map((label) => {
                 const value =
-                    Number(
-                        counts[label] || 0
-                    );
+                    Number(counts[label] || 0);
 
-                const width =
-                    Math.min(
-                        (
-                            value /
-                            highest
-                        ) * 100,
-                        100
-                    );
+                const width = Math.min(
+                    (value / highest) * 100,
+                    100
+                );
 
                 const percentage =
                     comparisonTotal > 0
@@ -1843,12 +1936,28 @@ function renderBreakdown(
                         ? `Lv.${label}`
                         : label;
 
+                const displayColor =
+                    getBreakdownColor(label);
+
                 return `
                     <div class="breakdown-row">
 
-                        <span class="breakdown-label">
-                            ${escapeHtml(displayLabel)}
-                        </span>
+                        <div class="breakdown-label-wrap">
+
+                            <span
+                                class="breakdown-dot"
+                                style="
+                                    background: ${displayColor};
+                                    box-shadow:
+                                        0 0 11px ${displayColor}66;
+                                "
+                            ></span>
+
+                            <span class="breakdown-label">
+                                ${escapeHtml(displayLabel)}
+                            </span>
+
+                        </div>
 
                         <div
                             class="breakdown-track"
@@ -1857,7 +1966,15 @@ function renderBreakdown(
 
                             <div
                                 class="breakdown-bar"
-                                style="width: ${width}%"
+                                style="
+                                    width: ${width}%;
+                                    background:
+                                        linear-gradient(
+                                            90deg,
+                                            ${displayColor}99,
+                                            ${displayColor}
+                                        );
+                                "
                             ></div>
 
                         </div>

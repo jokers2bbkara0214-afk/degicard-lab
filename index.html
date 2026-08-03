@@ -365,10 +365,10 @@
     <!-- デッキ分析 -->
     <section
         id="analysis"
-        class="page"
+        class="page analysis-page"
     >
 
-        <div class="page-header">
+        <div class="page-header analysis-page-header">
 
             <div>
 
@@ -379,8 +379,7 @@
                 <h1>デッキ分析</h1>
 
                 <p class="page-description">
-                    デッキの構成を見える化し、
-                    初心者向けに改善点を説明します。
+                    デッキの強みと改善ポイントを、初心者にも分かりやすく表示します。
                 </p>
 
             </div>
@@ -390,28 +389,22 @@
                 type="button"
                 onclick="showPage('deck')"
             >
-                デッキを編集
+                🃏 デッキを編集
             </button>
 
         </div>
 
-        <!-- デッキが空のとき -->
         <div
             id="analysisEmpty"
             class="analysis-empty"
         >
 
-            <div class="analysis-empty-icon">
-                📊
-            </div>
+            <div class="analysis-empty-icon">📊</div>
 
-            <h2>
-                分析するカードがありません
-            </h2>
+            <h2>分析するカードがありません</h2>
 
             <p>
-                カード図鑑からカードを追加すると、
-                デッキ構成や診断結果が表示されます。
+                カード図鑑からカードを追加すると、デッキ構成や診断結果が表示されます。
             </p>
 
             <button
@@ -424,37 +417,38 @@
 
         </div>
 
-        <!-- 分析結果 -->
         <div
             id="analysisContent"
             class="analysis-content"
             hidden
         >
 
-            <!-- 上部サマリー -->
-            <div class="analysis-summary-grid">
+            <section class="analysis-hero">
 
-                <article class="score-card">
+                <div class="analysis-hero-glow"></div>
 
-                    <p class="score-label">
-                        総合スコア
-                    </p>
+                <div class="analysis-score-area">
+
+                    <p class="score-label">🏆 総合評価</p>
 
                     <div class="score-main">
-
-                        <strong id="overallScore">
-                            0
-                        </strong>
-
+                        <strong id="overallScore">0</strong>
                         <span>点</span>
-
                     </div>
 
                     <div
                         id="overallRank"
                         class="rank-badge"
                     >
-                        C
+                        C RANK
+                    </div>
+
+                    <div
+                        id="scoreStars"
+                        class="score-stars"
+                        aria-label="総合評価"
+                    >
+                        ☆☆☆☆☆
                     </div>
 
                     <p
@@ -464,221 +458,47 @@
                         カードを追加してみましょう
                     </p>
 
-                </article>
+                </div>
 
-                <article class="analysis-stat-card">
+                <div class="analysis-hero-stats">
 
-                    <span>デッキ枚数</span>
-
-                    <strong id="analysisDeckTotal">
-                        0 / 50
-                    </strong>
-
-                    <div class="deck-progress">
-
-                        <div
-                            id="analysisDeckProgress"
-                            class="deck-progress-bar"
-                        ></div>
-
-                    </div>
-
-                </article>
-
-                <article class="analysis-stat-card">
-
-                    <span>使用している色</span>
-
-                    <strong id="analysisColorCount">
-                        0色
-                    </strong>
-
-                    <p id="mainColorText">
-                        メインカラーなし
-                    </p>
-
-                </article>
-
-                <article class="analysis-stat-card">
-
-                    <span>カード種類</span>
-
-                    <strong id="analysisUniqueCount">
-                        0種類
-                    </strong>
-
-                    <p id="analysisDigimonRatio">
-                        デジモン 0%
-                    </p>
-
-                </article>
-
-            </div>
-
-            <!-- グラフ -->
-            <div class="chart-grid">
-
-                <article class="analysis-panel">
-
-                    <div class="panel-heading">
-
-                        <div>
-
-                            <p class="panel-kicker">
-                                DECK PROFILE
-                            </p>
-
-                            <h2>
-                                デッキ性能
-                            </h2>
-
+                    <article class="hero-stat-card">
+                        <span>デッキ完成度</span>
+                        <strong id="analysisDeckTotal">0 / 50</strong>
+                        <div class="deck-progress">
+                            <div
+                                id="analysisDeckProgress"
+                                class="deck-progress-bar"
+                            ></div>
                         </div>
+                    </article>
 
-                        <span class="panel-note">
-                            全体像
-                        </span>
+                    <article class="hero-stat-card">
+                        <span>使用している色</span>
+                        <strong id="analysisColorCount">0色</strong>
+                        <p id="mainColorText">メインカラーなし</p>
+                    </article>
 
-                    </div>
+                    <article class="hero-stat-card">
+                        <span>登録カード種類</span>
+                        <strong id="analysisUniqueCount">0種類</strong>
+                        <p id="analysisDigimonRatio">デジモン 0%</p>
+                    </article>
 
-                    <div class="chart-container radar-container">
+                </div>
 
-                        <canvas id="radarChart"></canvas>
+            </section>
 
-                    </div>
-
-                </article>
-
-                <article class="analysis-panel">
-
-                    <div class="panel-heading">
-
-                        <div>
-
-                            <p class="panel-kicker">
-                                SCORE DETAILS
-                            </p>
-
-                            <h2>
-                                項目別スコア
-                            </h2>
-
-                        </div>
-
-                        <span class="panel-note">
-                            100点満点
-                        </span>
-
-                    </div>
-
-                    <div class="chart-container bar-container">
-
-                        <canvas id="scoreBarChart"></canvas>
-
-                    </div>
-
-                </article>
-
-            </div>
-
-            <!-- 構成 -->
-            <div class="composition-grid">
-
-                <article class="analysis-panel">
-
-                    <div class="panel-heading">
-
-                        <div>
-
-                            <p class="panel-kicker">
-                                LEVEL CURVE
-                            </p>
-
-                            <h2>
-                                レベル構成
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        id="levelBreakdown"
-                        class="breakdown-list"
-                    ></div>
-
-                </article>
-
-                <article class="analysis-panel">
-
-                    <div class="panel-heading">
-
-                        <div>
-
-                            <p class="panel-kicker">
-                                COLOR BALANCE
-                            </p>
-
-                            <h2>
-                                色の構成
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        id="colorBreakdown"
-                        class="breakdown-list"
-                    ></div>
-
-                    <p class="breakdown-footnote">
-                        複数色カードは、それぞれの色に集計されます。
-                    </p>
-
-                </article>
-
-                <article class="analysis-panel">
-
-                    <div class="panel-heading">
-
-                        <div>
-
-                            <p class="panel-kicker">
-                                CARD TYPES
-                            </p>
-
-                            <h2>
-                                種類の構成
-                            </h2>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        id="typeBreakdown"
-                        class="breakdown-list"
-                    ></div>
-
-                </article>
-
-            </div>
-
-            <!-- 初心者診断 -->
-            <article class="analysis-panel advice-panel">
+            <article class="analysis-panel advice-panel featured-panel">
 
                 <div class="panel-heading">
 
                     <div>
-
-                        <p class="panel-kicker">
-                            BEGINNER DIAGNOSIS
+                        <p class="panel-kicker">BEGINNER DIAGNOSIS</p>
+                        <h2>💡 初心者向けデッキ診断</h2>
+                        <p class="panel-description">
+                            まずは、次に直すと効果が大きいポイントから確認しましょう。
                         </p>
-
-                        <h2>
-                            初心者向けデッキ診断
-                        </h2>
-
                     </div>
 
                     <span
@@ -697,20 +517,84 @@
 
             </article>
 
-            <!-- 注意書き -->
+            <div class="chart-grid">
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <p class="panel-kicker">DECK PROFILE</p>
+                            <h2>📊 デッキ性能</h2>
+                        </div>
+                        <span class="panel-note">全体像</span>
+                    </div>
+
+                    <div class="chart-container radar-container">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+
+                </article>
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <p class="panel-kicker">SCORE DETAILS</p>
+                            <h2>📈 項目別スコア</h2>
+                        </div>
+                        <span class="panel-note">100点満点</span>
+                    </div>
+
+                    <div class="chart-container bar-container">
+                        <canvas id="scoreBarChart"></canvas>
+                    </div>
+
+                </article>
+
+            </div>
+
+            <div class="composition-grid">
+
+                <article class="analysis-panel composition-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="panel-kicker">LEVEL CURVE</p>
+                            <h2>🌱 レベル構成</h2>
+                        </div>
+                    </div>
+                    <div id="levelBreakdown" class="breakdown-list"></div>
+                </article>
+
+                <article class="analysis-panel composition-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="panel-kicker">COLOR BALANCE</p>
+                            <h2>🎨 色の構成</h2>
+                        </div>
+                    </div>
+                    <div id="colorBreakdown" class="breakdown-list"></div>
+                    <p class="breakdown-footnote">
+                        複数色カードは、それぞれの色に集計されます。
+                    </p>
+                </article>
+
+                <article class="analysis-panel composition-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="panel-kicker">CARD TYPES</p>
+                            <h2>🧩 種類の構成</h2>
+                        </div>
+                    </div>
+                    <div id="typeBreakdown" class="breakdown-list"></div>
+                </article>
+
+            </div>
+
             <div class="analysis-notice">
-
-                <strong>
-                    現在の診断について
-                </strong>
-
+                <strong>現在の診断について</strong>
                 <p>
-                    現在のスコアは、カード枚数・レベル構成・
-                    カード種類・色数などから計算した初心者向けの目安です。
-                    カード効果同士の相性や実際の勝率は、
-                    今後の診断機能で対応します。
+                    現在のスコアは、カード枚数・レベル構成・カード種類・色数などから計算した初心者向けの目安です。カード効果同士の相性や実際の勝率は、今後の診断機能で対応します。
                 </p>
-
             </div>
 
         </div>
