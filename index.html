@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiCard Lab</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="sidebar">
+
+    <h2>DIGICARD LAB</h2>
+
+    <button onclick="showPage('home')">🏠 ホーム</button>
+    <button onclick="showPage('cards')">📖 カード図鑑</button>
+    <button onclick="showPage('deck')">🃏 デッキ構築</button>
+    <button onclick="showPage('analysis')">📊 デッキ分析</button>
+    <button onclick="showPage('guide')">📚 初心者ガイド</button>
+
+</div>
+
+<div class="content">
+
+    <section id="home" class="page active">
+        <h1>ようこそ！</h1>
+
+        <div class="card">
+            <h2>DigiCard Lab</h2>
+
+            <p>
+                デジモンカード初心者向けの
+                デッキ構築サポートアプリです。
+            </p>
+
+            <p>
+                左側のメニューから
+                機能を選んでください。
+            </p>
+        </div>
+    </section>
+
+    <section id="cards" class="page">
+        <h1>カード図鑑</h1>
+    </section>
+
+    <section id="deck" class="page">
+        <h1>デッキ構築</h1>
+    </section>
+
+    <section id="analysis" class="page">
+        <h1>デッキ分析</h1>
+    </section>
+
+    <section id="guide" class="page">
+        <h1>初心者ガイド</h1>
+    </section>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
