@@ -2,7 +2,11 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>DigiCard Lab</title>
 
@@ -12,9 +16,11 @@
 <body>
 
 <aside class="sidebar">
+
     <h2>DIGICARD LAB</h2>
 
     <nav class="sidebar-menu">
+
         <button
             class="nav-button active"
             data-page="home"
@@ -38,7 +44,10 @@
         >
             🃏 デッキ構築
 
-            <span id="sidebarDeckCount" class="menu-count">
+            <span
+                id="sidebarDeckCount"
+                class="menu-count"
+            >
                 0
             </span>
         </button>
@@ -58,21 +67,29 @@
         >
             📚 初心者ガイド
         </button>
+
     </nav>
+
 </aside>
 
 <main class="content">
 
     <!-- ホーム -->
-    <section id="home" class="page active">
+    <section
+        id="home"
+        class="page active"
+    >
 
-        <p class="eyebrow">BEGINNER DECK BUILDER</p>
+        <p class="eyebrow">
+            BEGINNER DECK BUILDER
+        </p>
 
         <h1>DigiCard Lab</h1>
 
         <div class="home-card">
 
             <div>
+
                 <p class="home-label">
                     デジモンカード初心者向け
                 </p>
@@ -94,6 +111,7 @@
                 >
                     カード図鑑を開く
                 </button>
+
             </div>
 
             <div class="home-status">
@@ -105,10 +123,12 @@
                 </strong>
 
                 <div class="deck-progress">
+
                     <div
                         id="homeDeckProgress"
                         class="deck-progress-bar"
                     ></div>
+
                 </div>
 
                 <span id="homeDeckMessage">
@@ -122,16 +142,27 @@
     </section>
 
     <!-- カード図鑑 -->
-    <section id="cards" class="page">
+    <section
+        id="cards"
+        class="page"
+    >
 
         <div class="page-header">
 
             <div>
-                <p class="eyebrow">CARD DATABASE</p>
+
+                <p class="eyebrow">
+                    CARD DATABASE
+                </p>
+
                 <h1>カード図鑑</h1>
+
             </div>
 
-            <p id="cardCount" class="result-count">
+            <p
+                id="cardCount"
+                class="result-count"
+            >
                 0件
             </p>
 
@@ -146,7 +177,11 @@
             >
 
             <select id="colorFilter">
-                <option value="">すべての色</option>
+
+                <option value="">
+                    すべての色
+                </option>
+
                 <option value="赤">赤</option>
                 <option value="青">青</option>
                 <option value="黄">黄</option>
@@ -154,40 +189,73 @@
                 <option value="黒">黒</option>
                 <option value="紫">紫</option>
                 <option value="白">白</option>
+
             </select>
 
             <select id="typeFilter">
-                <option value="">すべての種類</option>
-                <option value="デジモン">デジモン</option>
-                <option value="デジタマ">デジタマ</option>
-                <option value="テイマー">テイマー</option>
-                <option value="オプション">オプション</option>
+
+                <option value="">
+                    すべての種類
+                </option>
+
+                <option value="デジモン">
+                    デジモン
+                </option>
+
+                <option value="デジタマ">
+                    デジタマ
+                </option>
+
+                <option value="テイマー">
+                    テイマー
+                </option>
+
+                <option value="オプション">
+                    オプション
+                </option>
+
             </select>
 
             <select id="levelFilter">
-                <option value="">すべてのレベル</option>
+
+                <option value="">
+                    すべてのレベル
+                </option>
+
                 <option value="2">Lv.2</option>
                 <option value="3">Lv.3</option>
                 <option value="4">Lv.4</option>
                 <option value="5">Lv.5</option>
                 <option value="6">Lv.6</option>
                 <option value="7">Lv.7</option>
+
             </select>
 
         </div>
 
-        <div id="cardList" class="card-grid"></div>
+        <div
+            id="cardList"
+            class="card-grid"
+        ></div>
 
     </section>
 
     <!-- デッキ構築 -->
-    <section id="deck" class="page">
+    <section
+        id="deck"
+        class="page"
+    >
 
         <div class="page-header">
 
             <div>
-                <p class="eyebrow">DECK BUILDER</p>
+
+                <p class="eyebrow">
+                    DECK BUILDER
+                </p>
+
                 <h1>デッキ構築</h1>
+
             </div>
 
             <button
@@ -211,10 +279,12 @@
                 </strong>
 
                 <div class="deck-progress">
+
                     <div
                         id="deckProgressBar"
                         class="deck-progress-bar"
                     ></div>
+
                 </div>
 
                 <p id="deckStatusMessage">
@@ -224,18 +294,33 @@
             </div>
 
             <div class="deck-stat-card">
+
                 <span>登録カード種類</span>
-                <strong id="uniqueCardCount">0種類</strong>
+
+                <strong id="uniqueCardCount">
+                    0種類
+                </strong>
+
             </div>
 
             <div class="deck-stat-card">
+
                 <span>デジモン</span>
-                <strong id="digimonCount">0枚</strong>
+
+                <strong id="digimonCount">
+                    0枚
+                </strong>
+
             </div>
 
             <div class="deck-stat-card">
+
                 <span>テイマー・オプション</span>
-                <strong id="supportCount">0枚</strong>
+
+                <strong id="supportCount">
+                    0枚
+                </strong>
+
             </div>
 
         </div>
@@ -249,48 +334,410 @@
             >
 
             <select id="deckSortSelect">
-                <option value="level">レベル順</option>
-                <option value="name">カード名順</option>
-                <option value="count">枚数順</option>
-                <option value="number">カード番号順</option>
+
+                <option value="level">
+                    レベル順
+                </option>
+
+                <option value="name">
+                    カード名順
+                </option>
+
+                <option value="count">
+                    枚数順
+                </option>
+
+                <option value="number">
+                    カード番号順
+                </option>
+
             </select>
 
         </div>
 
-        <div id="deckList" class="deck-list"></div>
+        <div
+            id="deckList"
+            class="deck-list"
+        ></div>
 
     </section>
 
-    <!-- 分析 -->
-    <section id="analysis" class="page">
+    <!-- デッキ分析 -->
+    <section
+        id="analysis"
+        class="page"
+    >
 
-        <p class="eyebrow">DECK ANALYSIS</p>
-        <h1>デッキ分析</h1>
+        <div class="page-header">
 
-        <div class="coming-card">
-            <h2>次の進化で実装予定</h2>
+            <div>
+
+                <p class="eyebrow">
+                    DECK ANALYSIS
+                </p>
+
+                <h1>デッキ分析</h1>
+
+                <p class="page-description">
+                    デッキの構成を見える化し、
+                    初心者向けに改善点を説明します。
+                </p>
+
+            </div>
+
+            <button
+                class="secondary-button"
+                type="button"
+                onclick="showPage('deck')"
+            >
+                デッキを編集
+            </button>
+
+        </div>
+
+        <!-- デッキが空のとき -->
+        <div
+            id="analysisEmpty"
+            class="analysis-empty"
+        >
+
+            <div class="analysis-empty-icon">
+                📊
+            </div>
+
+            <h2>
+                分析するカードがありません
+            </h2>
 
             <p>
-                レベル別構成、色の割合、
-                初心者向けアドバイスを表示します。
+                カード図鑑からカードを追加すると、
+                デッキ構成や診断結果が表示されます。
             </p>
+
+            <button
+                class="primary-button"
+                type="button"
+                onclick="showPage('cards')"
+            >
+                カードを追加する
+            </button>
+
+        </div>
+
+        <!-- 分析結果 -->
+        <div
+            id="analysisContent"
+            class="analysis-content"
+            hidden
+        >
+
+            <!-- 上部サマリー -->
+            <div class="analysis-summary-grid">
+
+                <article class="score-card">
+
+                    <p class="score-label">
+                        総合スコア
+                    </p>
+
+                    <div class="score-main">
+
+                        <strong id="overallScore">
+                            0
+                        </strong>
+
+                        <span>点</span>
+
+                    </div>
+
+                    <div
+                        id="overallRank"
+                        class="rank-badge"
+                    >
+                        C
+                    </div>
+
+                    <p
+                        id="overallMessage"
+                        class="score-message"
+                    >
+                        カードを追加してみましょう
+                    </p>
+
+                </article>
+
+                <article class="analysis-stat-card">
+
+                    <span>デッキ枚数</span>
+
+                    <strong id="analysisDeckTotal">
+                        0 / 50
+                    </strong>
+
+                    <div class="deck-progress">
+
+                        <div
+                            id="analysisDeckProgress"
+                            class="deck-progress-bar"
+                        ></div>
+
+                    </div>
+
+                </article>
+
+                <article class="analysis-stat-card">
+
+                    <span>使用している色</span>
+
+                    <strong id="analysisColorCount">
+                        0色
+                    </strong>
+
+                    <p id="mainColorText">
+                        メインカラーなし
+                    </p>
+
+                </article>
+
+                <article class="analysis-stat-card">
+
+                    <span>カード種類</span>
+
+                    <strong id="analysisUniqueCount">
+                        0種類
+                    </strong>
+
+                    <p id="analysisDigimonRatio">
+                        デジモン 0%
+                    </p>
+
+                </article>
+
+            </div>
+
+            <!-- グラフ -->
+            <div class="chart-grid">
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <p class="panel-kicker">
+                                DECK PROFILE
+                            </p>
+
+                            <h2>
+                                デッキ性能
+                            </h2>
+
+                        </div>
+
+                        <span class="panel-note">
+                            全体像
+                        </span>
+
+                    </div>
+
+                    <div class="chart-container radar-container">
+
+                        <canvas id="radarChart"></canvas>
+
+                    </div>
+
+                </article>
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <p class="panel-kicker">
+                                SCORE DETAILS
+                            </p>
+
+                            <h2>
+                                項目別スコア
+                            </h2>
+
+                        </div>
+
+                        <span class="panel-note">
+                            100点満点
+                        </span>
+
+                    </div>
+
+                    <div class="chart-container bar-container">
+
+                        <canvas id="scoreBarChart"></canvas>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+            <!-- 構成 -->
+            <div class="composition-grid">
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <p class="panel-kicker">
+                                LEVEL CURVE
+                            </p>
+
+                            <h2>
+                                レベル構成
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="levelBreakdown"
+                        class="breakdown-list"
+                    ></div>
+
+                </article>
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <p class="panel-kicker">
+                                COLOR BALANCE
+                            </p>
+
+                            <h2>
+                                色の構成
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="colorBreakdown"
+                        class="breakdown-list"
+                    ></div>
+
+                    <p class="breakdown-footnote">
+                        複数色カードは、それぞれの色に集計されます。
+                    </p>
+
+                </article>
+
+                <article class="analysis-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <p class="panel-kicker">
+                                CARD TYPES
+                            </p>
+
+                            <h2>
+                                種類の構成
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                        id="typeBreakdown"
+                        class="breakdown-list"
+                    ></div>
+
+                </article>
+
+            </div>
+
+            <!-- 初心者診断 -->
+            <article class="analysis-panel advice-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="panel-kicker">
+                            BEGINNER DIAGNOSIS
+                        </p>
+
+                        <h2>
+                            初心者向けデッキ診断
+                        </h2>
+
+                    </div>
+
+                    <span
+                        id="adviceCount"
+                        class="advice-count"
+                    >
+                        0件
+                    </span>
+
+                </div>
+
+                <div
+                    id="adviceList"
+                    class="advice-list"
+                ></div>
+
+            </article>
+
+            <!-- 注意書き -->
+            <div class="analysis-notice">
+
+                <strong>
+                    現在の診断について
+                </strong>
+
+                <p>
+                    現在のスコアは、カード枚数・レベル構成・
+                    カード種類・色数などから計算した初心者向けの目安です。
+                    カード効果同士の相性や実際の勝率は、
+                    今後の診断機能で対応します。
+                </p>
+
+            </div>
+
         </div>
 
     </section>
 
     <!-- 初心者ガイド -->
-    <section id="guide" class="page">
+    <section
+        id="guide"
+        class="page"
+    >
 
-        <p class="eyebrow">BEGINNER GUIDE</p>
+        <p class="eyebrow">
+            BEGINNER GUIDE
+        </p>
+
         <h1>初心者ガイド</h1>
 
         <div class="coming-card">
+
             <h2>デッキ構築の基本</h2>
 
             <p>
                 カードの選び方や進化ラインを、
                 初心者向けに分かりやすく整理していきます。
             </p>
+
         </div>
 
     </section>
@@ -381,60 +828,105 @@
                 <div class="detail-grid">
 
                     <div>
+
                         <span>登場コスト</span>
-                        <strong id="modalPlayCost">-</strong>
+
+                        <strong id="modalPlayCost">
+                            -
+                        </strong>
+
                     </div>
 
                     <div>
+
                         <span>DP</span>
-                        <strong id="modalDp">-</strong>
+
+                        <strong id="modalDp">
+                            -
+                        </strong>
+
                     </div>
 
                     <div>
+
                         <span>形態</span>
-                        <strong id="modalForm">-</strong>
+
+                        <strong id="modalForm">
+                            -
+                        </strong>
+
                     </div>
 
                     <div>
+
                         <span>属性</span>
-                        <strong id="modalAttribute">-</strong>
+
+                        <strong id="modalAttribute">
+                            -
+                        </strong>
+
                     </div>
 
                     <div>
+
                         <span>レアリティ</span>
-                        <strong id="modalRarity">-</strong>
+
+                        <strong id="modalRarity">
+                            -
+                        </strong>
+
                     </div>
 
                     <div>
+
                         <span>収録</span>
-                        <strong id="modalSet">-</strong>
+
+                        <strong id="modalSet">
+                            -
+                        </strong>
+
                     </div>
 
                 </div>
 
                 <section class="detail-section">
+
                     <h3>進化条件</h3>
+
                     <div id="modalDigivolutionCosts"></div>
+
                 </section>
 
                 <section class="detail-section">
+
                     <h3>特徴</h3>
+
                     <p id="modalTraits"></p>
+
                 </section>
 
                 <section class="detail-section">
+
                     <h3>カード効果</h3>
+
                     <p id="modalEffect"></p>
+
                 </section>
 
                 <section class="detail-section">
+
                     <h3>進化元効果</h3>
+
                     <p id="modalInheritedEffect"></p>
+
                 </section>
 
                 <section class="detail-section">
+
                     <h3>セキュリティ効果</h3>
+
                     <p id="modalSecurityEffect"></p>
+
                 </section>
 
             </div>
@@ -445,6 +937,7 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <script src="script.js"></script>
 
 </body>
