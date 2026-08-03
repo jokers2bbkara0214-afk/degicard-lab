@@ -3,111 +3,319 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>DigiCard Lab</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="sidebar">
-
+<aside class="sidebar">
     <h2>DIGICARD LAB</h2>
 
-    <button onclick="showPage('home')">🏠 ホーム</button>
-    <button onclick="showPage('cards')">📖 カード図鑑</button>
-    <button onclick="showPage('deck')">🃏 デッキ構築</button>
-    <button onclick="showPage('analysis')">📊 デッキ分析</button>
-    <button onclick="showPage('guide')">📚 初心者ガイド</button>
-
-</div>
-
-<div class="content">
-
-    <section id="home" class="page active">
-        <h1>ようこそ！</h1>
-
-        <div class="card">
-            <h2>DigiCard Lab</h2>
-
-            <p>
-                デジモンカード初心者向けの
-                デッキ構築サポートアプリです。
-            </p>
-
-            <p>
-                左側のメニューから
-                機能を選んでください。
-            </p>
-        </div>
-    </section>
-
-<section id="cards" class="page">
-    <div class="page-header">
-        <div>
-            <p class="eyebrow">CARD DATABASE</p>
-            <h1>カード図鑑</h1>
-        </div>
-
-        <p id="cardCount" class="result-count">0件</p>
-    </div>
-
-    <div class="filter-panel">
-        <input
-            id="searchInput"
-            type="search"
-            placeholder="カード名・カード番号で検索"
+    <nav class="sidebar-menu">
+        <button
+            class="nav-button active"
+            data-page="home"
+            onclick="showPage('home')"
         >
+            🏠 ホーム
+        </button>
 
-        <select id="colorFilter">
-            <option value="">すべての色</option>
-            <option value="赤">赤</option>
-            <option value="青">青</option>
-            <option value="黄">黄</option>
-            <option value="緑">緑</option>
-            <option value="黒">黒</option>
-            <option value="紫">紫</option>
-            <option value="白">白</option>
-        </select>
+        <button
+            class="nav-button"
+            data-page="cards"
+            onclick="showPage('cards')"
+        >
+            📖 カード図鑑
+        </button>
 
-        <select id="typeFilter">
-            <option value="">すべての種類</option>
-            <option value="デジモン">デジモン</option>
-            <option value="デジタマ">デジタマ</option>
-            <option value="テイマー">テイマー</option>
-            <option value="オプション">オプション</option>
-        </select>
+        <button
+            class="nav-button"
+            data-page="deck"
+            onclick="showPage('deck')"
+        >
+            🃏 デッキ構築
 
-        <select id="levelFilter">
-            <option value="">すべてのレベル</option>
-            <option value="2">Lv.2</option>
-            <option value="3">Lv.3</option>
-            <option value="4">Lv.4</option>
-            <option value="5">Lv.5</option>
-            <option value="6">Lv.6</option>
-            <option value="7">Lv.7</option>
-        </select>
-    </div>
+            <span id="sidebarDeckCount" class="menu-count">
+                0
+            </span>
+        </button>
 
-    <div id="cardList" class="card-grid"></div>
-</section>
+        <button
+            class="nav-button"
+            data-page="analysis"
+            onclick="showPage('analysis')"
+        >
+            📊 デッキ分析
+        </button>
 
+        <button
+            class="nav-button"
+            data-page="guide"
+            onclick="showPage('guide')"
+        >
+            📚 初心者ガイド
+        </button>
+    </nav>
+</aside>
+
+<main class="content">
+
+    <!-- ホーム -->
+    <section id="home" class="page active">
+
+        <p class="eyebrow">BEGINNER DECK BUILDER</p>
+
+        <h1>DigiCard Lab</h1>
+
+        <div class="home-card">
+
+            <div>
+                <p class="home-label">
+                    デジモンカード初心者向け
+                </p>
+
+                <h2>
+                    好きなデジモンから<br>
+                    デッキを育てよう
+                </h2>
+
+                <p>
+                    カードを検索してデッキに追加すると、
+                    枚数やレベル構成を自動で管理します。
+                </p>
+
+                <button
+                    class="primary-button"
+                    type="button"
+                    onclick="showPage('cards')"
+                >
+                    カード図鑑を開く
+                </button>
+            </div>
+
+            <div class="home-status">
+
+                <p>現在のデッキ</p>
+
+                <strong id="homeDeckCount">
+                    0 / 50
+                </strong>
+
+                <div class="deck-progress">
+                    <div
+                        id="homeDeckProgress"
+                        class="deck-progress-bar"
+                    ></div>
+                </div>
+
+                <span id="homeDeckMessage">
+                    カードを追加してみましょう
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- カード図鑑 -->
+    <section id="cards" class="page">
+
+        <div class="page-header">
+
+            <div>
+                <p class="eyebrow">CARD DATABASE</p>
+                <h1>カード図鑑</h1>
+            </div>
+
+            <p id="cardCount" class="result-count">
+                0件
+            </p>
+
+        </div>
+
+        <div class="filter-panel">
+
+            <input
+                id="searchInput"
+                type="search"
+                placeholder="カード名・カード番号で検索"
+            >
+
+            <select id="colorFilter">
+                <option value="">すべての色</option>
+                <option value="赤">赤</option>
+                <option value="青">青</option>
+                <option value="黄">黄</option>
+                <option value="緑">緑</option>
+                <option value="黒">黒</option>
+                <option value="紫">紫</option>
+                <option value="白">白</option>
+            </select>
+
+            <select id="typeFilter">
+                <option value="">すべての種類</option>
+                <option value="デジモン">デジモン</option>
+                <option value="デジタマ">デジタマ</option>
+                <option value="テイマー">テイマー</option>
+                <option value="オプション">オプション</option>
+            </select>
+
+            <select id="levelFilter">
+                <option value="">すべてのレベル</option>
+                <option value="2">Lv.2</option>
+                <option value="3">Lv.3</option>
+                <option value="4">Lv.4</option>
+                <option value="5">Lv.5</option>
+                <option value="6">Lv.6</option>
+                <option value="7">Lv.7</option>
+            </select>
+
+        </div>
+
+        <div id="cardList" class="card-grid"></div>
+
+    </section>
+
+    <!-- デッキ構築 -->
     <section id="deck" class="page">
-        <h1>デッキ構築</h1>
+
+        <div class="page-header">
+
+            <div>
+                <p class="eyebrow">DECK BUILDER</p>
+                <h1>デッキ構築</h1>
+            </div>
+
+            <button
+                id="clearDeckButton"
+                class="danger-button"
+                type="button"
+            >
+                デッキを空にする
+            </button>
+
+        </div>
+
+        <div class="deck-summary">
+
+            <div class="deck-count-card">
+
+                <span>メインデッキ</span>
+
+                <strong id="deckTotalCount">
+                    0 / 50
+                </strong>
+
+                <div class="deck-progress">
+                    <div
+                        id="deckProgressBar"
+                        class="deck-progress-bar"
+                    ></div>
+                </div>
+
+                <p id="deckStatusMessage">
+                    あと50枚追加できます
+                </p>
+
+            </div>
+
+            <div class="deck-stat-card">
+                <span>登録カード種類</span>
+                <strong id="uniqueCardCount">0種類</strong>
+            </div>
+
+            <div class="deck-stat-card">
+                <span>デジモン</span>
+                <strong id="digimonCount">0枚</strong>
+            </div>
+
+            <div class="deck-stat-card">
+                <span>テイマー・オプション</span>
+                <strong id="supportCount">0枚</strong>
+            </div>
+
+        </div>
+
+        <div class="deck-toolbar">
+
+            <input
+                id="deckSearchInput"
+                type="search"
+                placeholder="デッキ内のカードを検索"
+            >
+
+            <select id="deckSortSelect">
+                <option value="level">レベル順</option>
+                <option value="name">カード名順</option>
+                <option value="count">枚数順</option>
+                <option value="number">カード番号順</option>
+            </select>
+
+        </div>
+
+        <div id="deckList" class="deck-list"></div>
+
     </section>
 
+    <!-- 分析 -->
     <section id="analysis" class="page">
+
+        <p class="eyebrow">DECK ANALYSIS</p>
         <h1>デッキ分析</h1>
+
+        <div class="coming-card">
+            <h2>次の進化で実装予定</h2>
+
+            <p>
+                レベル別構成、色の割合、
+                初心者向けアドバイスを表示します。
+            </p>
+        </div>
+
     </section>
 
+    <!-- 初心者ガイド -->
     <section id="guide" class="page">
+
+        <p class="eyebrow">BEGINNER GUIDE</p>
         <h1>初心者ガイド</h1>
+
+        <div class="coming-card">
+            <h2>デッキ構築の基本</h2>
+
+            <p>
+                カードの選び方や進化ラインを、
+                初心者向けに分かりやすく整理していきます。
+            </p>
+        </div>
+
     </section>
 
-</div>
+</main>
+
+<!-- 通知 -->
+<div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+></div>
 
 <!-- カード詳細モーダル -->
-<div id="cardModal" class="modal" aria-hidden="true">
-    <div class="modal-overlay" data-close-modal></div>
+<div
+    id="cardModal"
+    class="modal"
+    aria-hidden="true"
+>
+
+    <div
+        class="modal-overlay"
+        data-close-modal
+    ></div>
 
     <div
         class="modal-content"
@@ -115,6 +323,7 @@
         aria-modal="true"
         aria-labelledby="modalCardName"
     >
+
         <button
             id="modalCloseButton"
             class="modal-close"
@@ -125,15 +334,52 @@
         </button>
 
         <div class="modal-layout">
-            <div id="modalCardImage" class="modal-card-image"></div>
+
+            <div
+                id="modalCardImage"
+                class="modal-card-image"
+            ></div>
 
             <div class="modal-card-details">
-                <p id="modalCardNumber" class="modal-card-number"></p>
+
+                <p
+                    id="modalCardNumber"
+                    class="modal-card-number"
+                ></p>
+
                 <h2 id="modalCardName"></h2>
 
-                <div id="modalCardTags" class="card-tags"></div>
+                <div
+                    id="modalCardTags"
+                    class="card-tags"
+                ></div>
+
+                <div class="modal-deck-actions">
+
+                    <button
+                        id="modalRemoveButton"
+                        class="quantity-button"
+                        type="button"
+                    >
+                        −
+                    </button>
+
+                    <span id="modalDeckQuantity">
+                        0枚
+                    </span>
+
+                    <button
+                        id="modalAddButton"
+                        class="modal-add-button"
+                        type="button"
+                    >
+                        ＋ デッキへ追加
+                    </button>
+
+                </div>
 
                 <div class="detail-grid">
+
                     <div>
                         <span>登場コスト</span>
                         <strong id="modalPlayCost">-</strong>
@@ -163,6 +409,7 @@
                         <span>収録</span>
                         <strong id="modalSet">-</strong>
                     </div>
+
                 </div>
 
                 <section class="detail-section">
@@ -189,9 +436,13 @@
                     <h3>セキュリティ効果</h3>
                     <p id="modalSecurityEffect"></p>
                 </section>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 <script src="script.js"></script>
