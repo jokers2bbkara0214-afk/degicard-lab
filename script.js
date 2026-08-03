@@ -222,6 +222,68 @@ const modalDeckQuantity =
     document.getElementById(
         "modalDeckQuantity"
     );
+const evolutionCardSelect =
+    document.getElementById("evolutionCardSelect");
+
+const showEvolutionButton =
+    document.getElementById("showEvolutionButton");
+
+const evolutionEmpty =
+    document.getElementById("evolutionEmpty");
+
+const evolutionExplorer =
+    document.getElementById("evolutionExplorer");
+
+const evolutionTree =
+    document.getElementById("evolutionTree");
+
+const evolutionDetail =
+    document.getElementById("evolutionDetail");
+
+const evolutionDetailNumber =
+    document.getElementById("evolutionDetailNumber");
+
+const evolutionDetailImage =
+    document.getElementById("evolutionDetailImage");
+
+const evolutionDetailStatus =
+    document.getElementById("evolutionDetailStatus");
+
+const evolutionDetailName =
+    document.getElementById("evolutionDetailName");
+
+const evolutionDetailTags =
+    document.getElementById("evolutionDetailTags");
+
+const evolutionDetailPlayCost =
+    document.getElementById("evolutionDetailPlayCost");
+
+const evolutionDetailDp =
+    document.getElementById("evolutionDetailDp");
+
+const evolutionDetailForm =
+    document.getElementById("evolutionDetailForm");
+
+const evolutionDetailAttribute =
+    document.getElementById("evolutionDetailAttribute");
+
+const evolutionDetailEffect =
+    document.getElementById("evolutionDetailEffect");
+
+const evolutionDetailInheritedEffect =
+    document.getElementById(
+        "evolutionDetailInheritedEffect"
+    );
+
+const evolutionDetailOpenButton =
+    document.getElementById(
+        "evolutionDetailOpenButton"
+    );
+
+const evolutionDetailAddButton =
+    document.getElementById(
+        "evolutionDetailAddButton"
+    );
 
 /* ページ切り替え */
 
@@ -267,8 +329,11 @@ function showPage(pageId) {
     if (pageId === "analysis") {
         renderAnalysis();
     }
-}
 
+    if (pageId === "evolution") {
+        populateEvolutionSelect();
+    }
+}
 /* カード読み込み */
 
 async function loadCards() {
@@ -2621,6 +2686,426 @@ function escapeHtml(value) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
+function populateEvolutionSelect() {
+    if (!evolutionCardSelect) {
+        return;
+    }
+
+    const currentValue =
+        evolutionCardSelect.value;
+
+    const digimonCards = cards
+        .filter(
+            (card) =>
+                card.cardType === "デジモン"
+        )
+        .sort((a, b) => {
+            const levelA =
+                hasValue(a.level)
+                    ? Number(a.level)
+                    : 99;
+
+            const levelB =
+                hasValue(b.level)
+                    ? Number(b.level)
+                    : 99;
+
+            return (
+                levelA - levelB ||
+                a.name.localeCompare(
+                    b.name,
+                    "ja"
+                )
+            );
+        });
+
+    evolutionCardSelect.innerHTML = `
+        <option value="">
+            デジモンを選択してください
+        </option>
+
+        ${digimonCards
+            .map(
+                (card) => `
+                    <option value="${escapeHtml(card.id)}">
+                        ${
+                            hasValue(card.level)
+                                ? `Lv.${card.level} `
+                                : ""
+                        }
+                        ${escapeHtml(card.name)}
+                        （${escapeHtml(card.id)}）
+                    </option>
+                `
+            )
+            .join("")}
+    `;
+
+    if (
+        currentValue &&
+        digimonCards.some(
+            (card) =>
+                card.id === currentValue
+        )
+    ) {
+        evolutionCardSelect.value =
+            currentValue;
+    }
+}
+
+function showSelectedEvolutionRoute() {
+    const selectedCardId =
+        evolutionCardSelect.value;
+
+    if (!selectedCardId) {
+        showToast(
+            "デジモンを選択してください。",
+            true
+        );
+
+        return;
+    }
+
+    renderEvolutionRoute(
+        selectedCardId
+    );
+}
+
+function renderEvolutionRoute(cardId) {
+    const selectedCard =
+        findCard(cardId);
+
+    if (!selectedCard) {
+        showToast(
+            "選択したカードが見つかりません。",
+            true
+        );
+
+        return;
+    }
+
+    const route =
+        buildEvolutionRoute(cardId);
+
+if (route.length === 0) {
+    evolutionEmpty.hidden = false;
+    evolutionExplorer.hidden = true;
+
+    return;
+}
+
+evolutionEmpty.hidden = true;
+evolutionExplorer.hidden = false;
+
+showEvolutionDetail(selectedCard);
+
+    evolutionTree.innerHTML =
+        route
+            .map(
+                (card, index) => {
+                    const nextCard =
+                        route[index + 1];
+
+                    const connectorHtml =
+                        nextCard
+                            ? createEvolutionConnectorHtml(
+                                card,
+                                nextCard
+                            )
+                            : "";
+
+                    return `
+                        ${createEvolutionNodeHtml(
+                            card,
+                            card.id === cardId
+                        )}
+
+                        ${connectorHtml}
+                    `;
+                }
+            )
+            .join("");
+}
+function showEvolutionDetail(card) {
+    if (!card) {
+        evolutionDetail.hidden = true;
+        return;
+    }
+
+    evolutionDetail.hidden = false;
+
+    evolutionDetail.dataset.cardId =
+        card.id;
+
+    evolutionDetailNumber.textContent =
+        card.id || "-";
+
+    evolutionDetailStatus.textContent =
+        "⭐ 選択中";
+
+    evolutionDetailName.textContent =
+        card.name || "カード名なし";
+
+    const colors =
+        Array.isArray(card.colors)
+            ? card.colors
+            : [];
+
+    const levelTag =
+        hasValue(card.level)
+            ? `
+                <span class="card-tag">
+                    Lv.${escapeHtml(card.level)}
+                </span>
+            `
+            : "";
+
+    evolutionDetailTags.innerHTML = `
+        ${colors
+            .map(
+                (color) => `
+                    <span class="card-tag">
+                        ${escapeHtml(color)}
+                    </span>
+                `
+            )
+            .join("")}
+
+        <span class="card-tag">
+            ${escapeHtml(card.cardType || "-")}
+        </span>
+
+        ${levelTag}
+    `;
+
+    evolutionDetailPlayCost.textContent =
+        card.playCost ?? "-";
+
+    evolutionDetailDp.textContent =
+        hasValue(card.dp)
+            ? `${Number(card.dp).toLocaleString()} DP`
+            : "-";
+
+    evolutionDetailForm.textContent =
+        card.form || "-";
+
+    evolutionDetailAttribute.textContent =
+        card.attribute || "-";
+
+    evolutionDetailEffect.textContent =
+        card.effect?.trim()
+            ? card.effect
+            : "効果なし";
+
+    evolutionDetailInheritedEffect.textContent =
+        card.inheritedEffect?.trim()
+            ? card.inheritedEffect
+            : "進化元効果なし";
+
+    evolutionDetailImage.innerHTML =
+        createCardImageHtml(
+            card,
+            "card-placeholder"
+        );
+}
+
+function buildEvolutionRoute(cardId) {
+    const selectedCard =
+        findCard(cardId);
+
+    if (!selectedCard) {
+        return [];
+    }
+
+    const predecessors = [];
+    const visitedBefore =
+        new Set([cardId]);
+
+    let currentCard =
+        selectedCard;
+
+    while (
+        Array.isArray(
+            currentCard.evolutionPredecessors
+        ) &&
+        currentCard.evolutionPredecessors.length > 0
+    ) {
+        const predecessorId =
+            currentCard.evolutionPredecessors[0];
+
+        if (
+            visitedBefore.has(
+                predecessorId
+            )
+        ) {
+            break;
+        }
+
+        const predecessor =
+            findCard(predecessorId);
+
+        if (!predecessor) {
+            break;
+        }
+
+        predecessors.unshift(
+            predecessor
+        );
+
+        visitedBefore.add(
+            predecessorId
+        );
+
+        currentCard =
+            predecessor;
+    }
+
+    const successors = [];
+    const visitedAfter =
+        new Set([cardId]);
+
+    currentCard =
+        selectedCard;
+
+    while (
+        Array.isArray(
+            currentCard.evolutionSuccessors
+        ) &&
+        currentCard.evolutionSuccessors.length > 0
+    ) {
+        const successorId =
+            currentCard.evolutionSuccessors[0];
+
+        if (
+            visitedAfter.has(
+                successorId
+            )
+        ) {
+            break;
+        }
+
+        const successor =
+            findCard(successorId);
+
+        if (!successor) {
+            break;
+        }
+
+        successors.push(
+            successor
+        );
+
+        visitedAfter.add(
+            successorId
+        );
+
+        currentCard =
+            successor;
+    }
+
+    return [
+        ...predecessors,
+        selectedCard,
+        ...successors
+    ];
+}
+
+function createEvolutionNodeHtml(
+    card,
+    isCurrent
+) {
+    const colors =
+        Array.isArray(card.colors)
+            ? card.colors
+            : [];
+
+    const levelText =
+        hasValue(card.level)
+            ? `Lv.${card.level}`
+            : "レベルなし";
+
+    return `
+        <article
+            class="evolution-node ${
+                isCurrent
+                    ? "current"
+                    : ""
+            }"
+            data-evolution-card-id="${escapeHtml(card.id)}"
+        >
+            <p class="evolution-node-number">
+                ${escapeHtml(card.id)}
+            </p>
+
+            <h2 class="evolution-node-name">
+                ${escapeHtml(card.name)}
+            </h2>
+
+            <div class="evolution-node-tags">
+
+                ${colors
+                    .map(
+                        (color) => `
+                            <span class="card-tag">
+                                ${escapeHtml(color)}
+                            </span>
+                        `
+                    )
+                    .join("")}
+
+                <span class="card-tag">
+                    ${levelText}
+                </span>
+
+                <span class="card-tag">
+                    ${escapeHtml(card.form || "-")}
+                </span>
+
+            </div>
+        </article>
+    `;
+}
+
+function createEvolutionConnectorHtml(
+    currentCard,
+    nextCard
+) {
+    const costs =
+        Array.isArray(
+            nextCard.digivolutionCosts
+        )
+            ? nextCard.digivolutionCosts
+            : [];
+
+    const matchingCost =
+        costs.find(
+            (cost) =>
+                Number(cost.level) ===
+                Number(currentCard.level)
+        ) ||
+        costs[0];
+
+    const costText =
+        matchingCost
+            ? `${matchingCost.color || "-"}・進化コスト${matchingCost.cost ?? "-"}`
+            : "進化条件未登録";
+
+    return `
+        <div class="evolution-connector">
+
+            <div class="evolution-line"></div>
+
+            <div class="evolution-cost">
+                ${escapeHtml(costText)}
+            </div>
+
+            <div class="evolution-arrow">
+                ↓
+            </div>
+
+        </div>
+    `;
+}
 
 /* イベント */
 
@@ -2813,6 +3298,88 @@ document.addEventListener(
         ) {
             closeCardModal();
         }
+    }
+);
+
+showEvolutionButton.addEventListener(
+    "click",
+    showSelectedEvolutionRoute
+);
+
+evolutionCardSelect.addEventListener(
+    "change",
+    () => {
+        if (
+            evolutionCardSelect.value
+        ) {
+            renderEvolutionRoute(
+                evolutionCardSelect.value
+            );
+        } else {
+            evolutionEmpty.hidden = false;
+            evolutionExplorer.hidden = true;
+        }   }
+);
+
+evolutionTree.addEventListener(
+    "click",
+    (event) => {
+
+        const node =
+            event.target.closest(
+                "[data-evolution-card-id]"
+            );
+
+        if (!node) {
+            return;
+        }
+
+        const selectedId =
+            node.dataset.evolutionCardId;
+
+        evolutionCardSelect.value =
+            selectedId;
+
+        renderEvolutionRoute(
+            selectedId
+        );
+
+        showEvolutionDetail(
+            findCard(selectedId)
+        );
+
+    }
+);
+
+evolutionDetailOpenButton.addEventListener(
+    "click",
+    () => {
+
+        const cardId =
+            evolutionDetail.dataset.cardId;
+
+        if (!cardId) {
+            return;
+        }
+
+        openCardModal(cardId);
+
+    }
+);
+
+evolutionDetailAddButton.addEventListener(
+    "click",
+    () => {
+
+        const cardId =
+            evolutionDetail.dataset.cardId;
+
+        if (!cardId) {
+            return;
+        }
+
+        addCardToDeck(cardId);
+
     }
 );
 

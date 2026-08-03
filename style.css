@@ -1508,3 +1508,389 @@ body.modal-open {
         grid-template-columns: 60px 1fr 38px;
     }
 }
+/* ========================================
+   Commit 7: 進化ルートビューア
+======================================== */
+
+.evolution-page {
+    max-width: 1380px;
+    margin: 0 auto;
+}
+
+.evolution-page-header {
+    margin-bottom: 24px;
+}
+
+.evolution-controls {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) auto;
+    align-items: end;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.evolution-select-field {
+    display: grid;
+    gap: 8px;
+}
+
+.evolution-select-field > span {
+    color: var(--sub-text);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.evolution-controls .primary-button,
+.evolution-detail-actions .primary-button {
+    margin-top: 0;
+}
+
+.evolution-empty {
+    display: flex;
+    min-height: 380px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 40px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 0%, rgba(63, 185, 80, 0.16), transparent 44%),
+        var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: 22px;
+}
+
+.evolution-empty[hidden],
+.evolution-explorer[hidden],
+.evolution-teacher[hidden] {
+    display: none;
+}
+
+.evolution-empty-icon {
+    margin-bottom: 18px;
+    font-size: 64px;
+    filter: drop-shadow(0 0 20px rgba(63, 185, 80, 0.28));
+}
+
+.evolution-empty h2 {
+    margin-bottom: 10px;
+}
+
+.evolution-empty p {
+    max-width: 560px;
+    color: var(--sub-text);
+    line-height: 1.8;
+}
+
+.evolution-explorer {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(330px, 0.75fr);
+    align-items: start;
+    gap: 20px;
+}
+
+.evolution-route-panel,
+.evolution-detail,
+.evolution-teacher {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+}
+
+.evolution-route-panel {
+    min-width: 0;
+    padding: 22px;
+}
+
+.evolution-panel-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.evolution-panel-heading h2 {
+    font-size: 21px;
+}
+
+.evolution-tree {
+    display: grid;
+    justify-items: center;
+    gap: 0;
+    min-height: 460px;
+    padding: 28px;
+    overflow: hidden;
+    background:
+        linear-gradient(rgba(88, 166, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88, 166, 255, 0.035) 1px, transparent 1px),
+        radial-gradient(circle at center, rgba(88, 166, 255, 0.08), transparent 58%),
+        var(--background);
+    background-size: 28px 28px, 28px 28px, auto, auto;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.evolution-node {
+    position: relative;
+    width: min(450px, 100%);
+    padding: 18px;
+    overflow: hidden;
+    text-align: center;
+    background: rgba(22, 27, 34, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.evolution-node:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.evolution-node.current {
+    border-color: var(--primary);
+    box-shadow:
+        0 0 0 1px rgba(88, 166, 255, 0.28),
+        0 0 34px rgba(88, 166, 255, 0.16);
+}
+
+.evolution-node.current::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    content: "";
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+}
+
+.evolution-node-number {
+    margin-bottom: 5px;
+    color: var(--sub-text);
+    font-size: 12px;
+}
+
+.evolution-node-name {
+    margin-bottom: 11px;
+    font-size: 22px;
+}
+
+.evolution-node-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 7px;
+}
+
+.evolution-current-badge {
+    display: inline-flex;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    color: #ffffff;
+    background: var(--primary-dark);
+    border: 1px solid var(--primary);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.evolution-connector {
+    display: flex;
+    min-height: 92px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: var(--sub-text);
+}
+
+.evolution-line {
+    width: 2px;
+    height: 34px;
+    background: linear-gradient(var(--primary), var(--success));
+    box-shadow: 0 0 10px rgba(88, 166, 255, 0.28);
+}
+
+.evolution-cost {
+    margin: 7px 0 4px;
+    padding: 5px 10px;
+    color: #c9d1d9;
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.evolution-arrow {
+    color: var(--success);
+    font-size: 18px;
+    line-height: 1;
+}
+
+.evolution-detail {
+    position: sticky;
+    top: 20px;
+    padding: 20px;
+}
+
+.evolution-detail-image {
+    display: flex;
+    min-height: 260px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.evolution-detail-image img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+}
+
+.evolution-detail-image .card-placeholder {
+    font-size: 72px;
+}
+
+.evolution-detail-main {
+    padding: 17px 2px 4px;
+}
+
+.evolution-selected-label {
+    margin-bottom: 7px;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.evolution-detail-main h3 {
+    margin-bottom: 12px;
+    font-size: 28px;
+}
+
+.evolution-detail-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+    margin-top: 8px;
+}
+
+.evolution-detail-stats > div {
+    padding: 11px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.evolution-detail-stats span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--sub-text);
+    font-size: 11px;
+}
+
+.evolution-detail-stats strong {
+    font-size: 14px;
+}
+
+.evolution-detail-section {
+    margin-top: 13px;
+    padding: 14px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+}
+
+.evolution-detail-section h4 {
+    margin-bottom: 8px;
+    color: var(--primary);
+    font-size: 13px;
+}
+
+.evolution-detail-section p {
+    color: #c9d1d9;
+    font-size: 13px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+}
+
+.evolution-detail-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: 15px;
+}
+
+.evolution-teacher {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    gap: 14px;
+    margin-top: 20px;
+    padding: 19px;
+    background:
+        linear-gradient(135deg, rgba(63, 185, 80, 0.08), rgba(88, 166, 255, 0.05)),
+        var(--panel);
+}
+
+.evolution-teacher-icon {
+    display: flex;
+    width: 52px;
+    height: 52px;
+    align-items: center;
+    justify-content: center;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    font-size: 25px;
+}
+
+.evolution-teacher h2 {
+    margin: 3px 0 7px;
+    font-size: 18px;
+}
+
+.evolution-teacher p:last-child {
+    color: #c9d1d9;
+    line-height: 1.75;
+}
+
+@media (max-width: 1080px) {
+    .evolution-explorer {
+        grid-template-columns: 1fr;
+    }
+
+    .evolution-detail {
+        position: static;
+    }
+}
+
+@media (max-width: 680px) {
+    .evolution-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .evolution-tree,
+    .evolution-route-panel {
+        padding: 16px;
+    }
+
+    .evolution-panel-heading {
+        flex-direction: column;
+    }
+
+    .evolution-detail-actions,
+    .evolution-detail-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .evolution-teacher {
+        grid-template-columns: 1fr;
+    }
+}

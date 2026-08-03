@@ -24,8 +24,9 @@
     "securityEffect": "",
     "image": "",
     "deckLimit": 4,
-    "isDigiEgg": false
-  },
+    "isDigiEgg": false,
+    "evolutionPredecessors": [],
+    "evolutionSuccessors": ["BT1-015"]  },
   {
     "id": "BT1-015",
     "name": "グレイモン",
@@ -51,8 +52,9 @@
     "securityEffect": "",
     "image": "",
     "deckLimit": 4,
-    "isDigiEgg": false
-  },
+    "isDigiEgg": false,
+    "evolutionPredecessors": ["BT1-010"],
+    "evolutionSuccessors": ["BT1-114"]  },
   {
     "id": "BT1-085",
     "name": "八神太一",
@@ -72,8 +74,9 @@
     "securityEffect": "このカードをコストを支払わずに登場させる。",
     "image": "",
     "deckLimit": 4,
-    "isDigiEgg": false
-  },
+    "isDigiEgg": false,
+    "evolutionPredecessors": [],
+    "evolutionSuccessors": []  },
   {
     "id": "BT1-114",
     "name": "メタルグレイモン",
@@ -99,6 +102,7 @@
     "securityEffect": "",
     "image": "",
     "deckLimit": 4,
-    "isDigiEgg": false
-  }
+    "isDigiEgg": false,
+    "evolutionPredecessors": ["BT1-015"],
+    "evolutionSuccessors": []  }
 ]

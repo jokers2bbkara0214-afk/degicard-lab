@@ -62,6 +62,14 @@
 
         <button
             class="nav-button"
+            data-page="evolution"
+            onclick="showPage('evolution')"
+        >
+            🌳 進化ルート
+        </button>
+
+        <button
+            class="nav-button"
             data-page="guide"
             onclick="showPage('guide')"
         >
@@ -598,6 +606,164 @@
             </div>
 
         </div>
+
+    </section>
+
+    <!-- 進化ルートビューア -->
+    <section
+        id="evolution"
+        class="page evolution-page"
+    >
+
+        <div class="page-header evolution-page-header">
+
+            <div>
+                <p class="eyebrow">DIGIMON EXPLORER</p>
+                <h1>進化ルートビューア</h1>
+                <p class="page-description">
+                    選んだデジモンを中心に、進化元・進化先・カード情報を1画面で確認できます。
+                </p>
+            </div>
+
+            <button
+                class="secondary-button"
+                type="button"
+                onclick="showPage('cards')"
+            >
+                📖 カード図鑑を開く
+            </button>
+
+        </div>
+
+        <div class="evolution-controls">
+
+            <label class="evolution-select-field">
+                <span>中心に表示するデジモン</span>
+                <select id="evolutionCardSelect">
+                    <option value="">デジモンを選択してください</option>
+                </select>
+            </label>
+
+            <button
+                id="showEvolutionButton"
+                class="primary-button"
+                type="button"
+            >
+                🌳 進化ルートを表示
+            </button>
+
+        </div>
+
+        <div
+            id="evolutionEmpty"
+            class="evolution-empty"
+        >
+            <div class="evolution-empty-icon">🌳</div>
+            <h2>デジモンを選んでください</h2>
+            <p>
+                選択したデジモンを中心に、前後の進化ルートとカード詳細を表示します。
+            </p>
+        </div>
+
+        <div
+            id="evolutionExplorer"
+            class="evolution-explorer"
+            hidden
+        >
+
+            <section class="evolution-route-panel">
+
+                <div class="evolution-panel-heading">
+                    <div>
+                        <p class="panel-kicker">EVOLUTION ROUTE</p>
+                        <h2>🌳 進化ルート</h2>
+                    </div>
+                    <span class="panel-note">カードを押すと中心が切り替わります</span>
+                </div>
+
+                <div
+                    id="evolutionTree"
+                    class="evolution-tree"
+                ></div>
+
+            </section>
+
+            <aside
+                id="evolutionDetail"
+                class="evolution-detail"
+            >
+
+                <div class="evolution-panel-heading">
+                    <div>
+                        <p class="panel-kicker">CARD DETAILS</p>
+                        <h2>📖 カード情報</h2>
+                    </div>
+                    <span id="evolutionDetailNumber" class="panel-note">---</span>
+                </div>
+
+                <div id="evolutionDetailImage" class="evolution-detail-image">
+                    <span class="card-placeholder">🃏</span>
+                </div>
+
+                <div class="evolution-detail-main">
+                    <p id="evolutionDetailStatus" class="evolution-selected-label">⭐ 選択中</p>
+                    <h3 id="evolutionDetailName">---</h3>
+                    <div id="evolutionDetailTags" class="card-tags"></div>
+                </div>
+
+                <div class="evolution-detail-stats">
+                    <div><span>登場コスト</span><strong id="evolutionDetailPlayCost">-</strong></div>
+                    <div><span>DP</span><strong id="evolutionDetailDp">-</strong></div>
+                    <div><span>形態</span><strong id="evolutionDetailForm">-</strong></div>
+                    <div><span>属性</span><strong id="evolutionDetailAttribute">-</strong></div>
+                </div>
+
+                <section class="evolution-detail-section">
+                    <h4>カード効果</h4>
+                    <p id="evolutionDetailEffect">効果なし</p>
+                </section>
+
+                <section class="evolution-detail-section">
+                    <h4>進化元効果</h4>
+                    <p id="evolutionDetailInheritedEffect">進化元効果なし</p>
+                </section>
+
+                <div class="evolution-detail-actions">
+                    <button
+                        id="evolutionDetailOpenButton"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        詳細モーダルを開く
+                    </button>
+
+                    <button
+                        id="evolutionDetailAddButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        ＋ デッキへ追加
+                    </button>
+                </div>
+
+            </aside>
+
+        </div>
+
+        <article
+            id="evolutionTeacher"
+            class="evolution-teacher"
+            hidden
+        >
+            <div class="evolution-teacher-icon">💡</div>
+            <div>
+                <p class="panel-kicker">BEGINNER GUIDE</p>
+                <h2>この進化ルートの見方</h2>
+                <p id="evolutionTeacherText">
+                    下から上へ進化していく流れを確認できます。
+                </p>
+            </div>
+        </article>
 
     </section>
 
