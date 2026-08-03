@@ -9,6 +9,30 @@ const levelFilter = document.getElementById("levelFilter");
 const cardList = document.getElementById("cardList");
 const cardCount = document.getElementById("cardCount");
 
+const cardModal = document.getElementById("cardModal");
+const modalCloseButton = document.getElementById("modalCloseButton");
+const modalCardImage = document.getElementById("modalCardImage");
+const modalCardNumber = document.getElementById("modalCardNumber");
+const modalCardName = document.getElementById("modalCardName");
+const modalCardTags = document.getElementById("modalCardTags");
+const modalPlayCost = document.getElementById("modalPlayCost");
+const modalDp = document.getElementById("modalDp");
+const modalForm = document.getElementById("modalForm");
+const modalAttribute = document.getElementById("modalAttribute");
+const modalRarity = document.getElementById("modalRarity");
+const modalSet = document.getElementById("modalSet");
+const modalDigivolutionCosts = document.getElementById(
+    "modalDigivolutionCosts"
+);
+const modalTraits = document.getElementById("modalTraits");
+const modalEffect = document.getElementById("modalEffect");
+const modalInheritedEffect = document.getElementById(
+    "modalInheritedEffect"
+);
+const modalSecurityEffect = document.getElementById(
+    "modalSecurityEffect"
+);
+
 function showPage(pageId) {
     document.querySelectorAll(".page").forEach((page) => {
         page.classList.remove("active");
@@ -98,7 +122,13 @@ function createCardHtml(card) {
             : "DPなし";
 
     return `
-        <article class="digimon-card">
+            <article
+                class="digimon-card"
+                data-card-id="${escapeHtml(card.id)}"
+                tabindex="0"
+                role="button"
+                aria-label="${escapeHtml(card.name)}の詳細を開く"
+            >            
             <div class="card-image">
                 ${imageHtml}
             </div>
@@ -174,3 +204,148 @@ typeFilter.addEventListener("change", filterCards);
 levelFilter.addEventListener("change", filterCards);
 
 loadCards();
+
+function openCardModal(cardId) {
+    const card = cards.find((item) => item.id === cardId);
+
+    if (!card) {
+        console.error(`カードが見つかりません: ${cardId}`);
+        return;
+    }
+
+    modalCardNumber.textContent = card.id || "-";
+    modalCardName.textContent = card.name || "カード名なし";
+
+    modalPlayCost.textContent = card.playCost ?? "-";
+
+    modalDp.textContent =
+        card.dp !== null && card.dp !== undefined
+            ? `${Number(card.dp).toLocaleString()} DP`
+            : "-";
+
+    modalForm.textContent = card.form || "-";
+    modalAttribute.textContent = card.attribute || "-";
+    modalRarity.textContent = card.rarity || "-";
+    modalSet.textContent = card.set || "-";
+
+    modalTraits.textContent =
+        Array.isArray(card.traits) && card.traits.length > 0
+            ? card.traits.join(" / ")
+            : "記載なし";
+
+    modalEffect.textContent =
+        card.effect && card.effect.trim() !== ""
+            ? card.effect
+            : "効果なし";
+
+    modalInheritedEffect.textContent =
+        card.inheritedEffect && card.inheritedEffect.trim() !== ""
+            ? card.inheritedEffect
+            : "進化元効果なし";
+
+    modalSecurityEffect.textContent =
+        card.securityEffect && card.securityEffect.trim() !== ""
+            ? card.securityEffect
+            : "セキュリティ効果なし";
+
+    const colors = Array.isArray(card.colors) ? card.colors : [];
+
+    const levelTag =
+        card.level !== null && card.level !== undefined
+            ? `<span class="card-tag">Lv.${escapeHtml(card.level)}</span>`
+            : "";
+
+    modalCardTags.innerHTML = `
+        ${colors
+            .map(
+                (color) =>
+                    `<span class="card-tag">${escapeHtml(color)}</span>`
+            )
+            .join("")}
+        <span class="card-tag">${escapeHtml(card.cardType || "-")}</span>
+        ${levelTag}
+    `;
+
+    if (card.image) {
+        modalCardImage.innerHTML = `
+            <img
+                src="./images/cards/${escapeHtml(card.image)}"
+                alt="${escapeHtml(card.name)}"
+                onerror="this.parentElement.innerHTML='<span class=&quot;card-placeholder&quot;>🃏</span>'"
+            >
+        `;
+    } else {
+        modalCardImage.innerHTML =
+            `<span class="card-placeholder">🃏</span>`;
+    }
+
+    const costs = Array.isArray(card.digivolutionCosts)
+        ? card.digivolutionCosts
+        : [];
+
+    if (costs.length === 0) {
+        modalDigivolutionCosts.innerHTML = "<p>進化条件なし</p>";
+    } else {
+        modalDigivolutionCosts.innerHTML = costs
+            .map(
+                (cost) => `
+                    <span class="digivolution-cost">
+                        ${escapeHtml(cost.color || "-")}
+                        Lv.${escapeHtml(cost.level ?? "-")}
+                        から
+                        コスト${escapeHtml(cost.cost ?? "-")}
+                    </span>
+                `
+            )
+            .join("");
+    }
+
+    cardModal.classList.add("open");
+    cardModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+
+    modalCloseButton.focus();
+}
+
+function closeCardModal() {
+    cardModal.classList.remove("open");
+    cardModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+}
+
+cardList.addEventListener("click", (event) => {
+    const cardElement = event.target.closest(".digimon-card");
+
+    if (!cardElement) {
+        return;
+    }
+
+    openCardModal(cardElement.dataset.cardId);
+});
+
+cardList.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+        return;
+    }
+
+    const cardElement = event.target.closest(".digimon-card");
+
+    if (!cardElement) {
+        return;
+    }
+
+    event.preventDefault();
+    openCardModal(cardElement.dataset.cardId);
+});
+
+modalCloseButton.addEventListener("click", closeCardModal);
+
+document.querySelectorAll("[data-close-modal]").forEach((element) => {
+    element.addEventListener("click", closeCardModal);
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && cardModal.classList.contains("open")) {
+        closeCardModal();
+    }
+});
