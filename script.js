@@ -15,6 +15,8 @@ const shareCodeOutput =
     document.getElementById("shareCodeOutput");
 const shareCodeInput =
     document.getElementById("shareCodeInput");
+const aiAnalysisResult =
+    document.getElementById("aiAnalysisResult");
 
 const ANALYSIS_COLORS = [
     "赤",
@@ -2224,6 +2226,8 @@ function renderAnalysis() {
     renderAnalysisCharts(
         analysis.scores
     );
+    
+    generateAiDeckDiagnosis();
 }
 
 function calculateDeckAnalysis() {
@@ -5118,6 +5122,183 @@ if (importShareCodeButton) {
         importShareCode
     );
 
+}
+
+function generateAiDeckDiagnosis() {
+    if (!aiAnalysisResult) {
+        return;
+    }
+
+    const deckEntries = Object.entries(deck);
+
+    if (deckEntries.length === 0) {
+        aiAnalysisResult.textContent =
+            "デッキにカードがありません。\nカードを追加すると診断できます。";
+        return;
+    }
+
+    const levelCounts = {
+        3: 0,
+        4: 0,
+        5: 0,
+        6: 0
+    };
+
+    const colorCounts = {};
+    let totalCards = 0;
+    let digimonCards = 0;
+    let supportCards = 0;
+    let totalPlayCost = 0;
+    let playCostCount = 0;
+    let totalDp = 0;
+    let dpCount = 0;
+
+    deckEntries.forEach(([cardId, quantity]) => {
+        const card = cards.find(
+            (item) => item.id === cardId
+        );
+
+        if (!card) {
+            return;
+        }
+
+        const count = Number(quantity) || 0;
+        totalCards += count;
+
+        if (
+            card.cardType === "デジモン" ||
+            card.cardType === "デジタマ"
+        ) {
+            digimonCards += count;
+        } else {
+            supportCards += count;
+        }
+
+        if (
+            card.level &&
+            Object.hasOwn(levelCounts, card.level)
+        ) {
+            levelCounts[card.level] += count;
+        }
+
+        if (Array.isArray(card.colors)) {
+            card.colors.forEach((color) => {
+                colorCounts[color] =
+                    (colorCounts[color] || 0) + count;
+            });
+        }
+
+        if (card.playCost !== null && card.playCost !== undefined) {
+            totalPlayCost += Number(card.playCost) * count;
+            playCostCount += count;
+        }
+
+        if (card.dp !== null && card.dp !== undefined) {
+            totalDp += Number(card.dp) * count;
+            dpCount += count;
+        }
+    });
+
+    const averagePlayCost =
+        playCostCount > 0
+            ? totalPlayCost / playCostCount
+            : 0;
+
+    const averageDp =
+        dpCount > 0
+            ? totalDp / dpCount
+            : 0;
+
+    const colorCount =
+        Object.keys(colorCounts).length;
+
+    const comments = [];
+
+    if (totalCards < MAIN_DECK_LIMIT) {
+        comments.push(
+            `・デッキは現在${totalCards}枚です。50枚まであと${MAIN_DECK_LIMIT - totalCards}枚追加できます。`
+        );
+    } else {
+        comments.push(
+            "・デッキ枚数は50枚で完成しています。"
+        );
+    }
+
+    if (levelCounts[3] < 10) {
+        comments.push(
+            `・Lv.3が${levelCounts[3]}枚と少なめです。10〜14枚ほどあると序盤が安定しやすくなります。`
+        );
+    } else {
+        comments.push(
+            `・Lv.3は${levelCounts[3]}枚あり、序盤の土台は安定しています。`
+        );
+    }
+
+    if (levelCounts[4] < 8) {
+        comments.push(
+            `・Lv.4が${levelCounts[4]}枚です。8〜12枚を目安に増やすと、進化が途中で止まりにくくなります。`
+        );
+    }
+
+    if (levelCounts[5] < 6) {
+        comments.push(
+            `・Lv.5が${levelCounts[5]}枚です。6〜10枚ほどあるとLv.6へつなぎやすくなります。`
+        );
+    }
+
+    if (levelCounts[6] < 3) {
+        comments.push(
+            `・Lv.6が${levelCounts[6]}枚です。切り札を3〜6枚ほど用意すると勝ち筋を作りやすくなります。`
+        );
+    }
+
+    if (colorCount === 1) {
+        comments.push(
+            "・単色構成なので、進化条件や色条件を満たしやすく安定しています。"
+        );
+    } else if (colorCount >= 3) {
+        comments.push(
+            `・使用色が${colorCount}色あります。色条件が噛み合わない事故に注意してください。`
+        );
+    }
+
+    if (averagePlayCost >= 6) {
+        comments.push(
+            `・平均登場コストは${averagePlayCost.toFixed(1)}です。やや重いため、低コストカードを増やすと動きやすくなります。`
+        );
+    } else {
+        comments.push(
+            `・平均登場コストは${averagePlayCost.toFixed(1)}で、扱いやすい範囲です。`
+        );
+    }
+
+    if (averageDp > 0) {
+        comments.push(
+            `・デジモンの平均DPは${Math.round(averageDp).toLocaleString()}です。`
+        );
+    }
+
+    const supportRatio =
+        totalCards > 0
+            ? Math.round((supportCards / totalCards) * 100)
+            : 0;
+
+    if (supportRatio < 15) {
+        comments.push(
+            `・テイマー・オプションは全体の${supportRatio}%です。補助カードを少し増やすと対応力が上がります。`
+        );
+    } else if (supportRatio > 40) {
+        comments.push(
+            `・テイマー・オプションは全体の${supportRatio}%です。デジモン不足で進化しにくくならないか確認してください。`
+        );
+    } else {
+        comments.push(
+            `・テイマー・オプション比率は${supportRatio}%で、バランスの良い範囲です。`
+        );
+    }
+
+    aiAnalysisResult.textContent =
+        comments.join("\n\n");
 }
 
 /* 起動 */

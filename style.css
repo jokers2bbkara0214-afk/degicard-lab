@@ -2690,3 +2690,34 @@ body.image-lightbox-open {
         width: 100%;
     }
 }
+/* ===========================
+   AI診断
+=========================== */
+
+.ai-analysis-card{
+
+    margin-top:24px;
+
+    padding:24px;
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+}
+
+.ai-analysis-result{
+
+    margin-top:18px;
+
+    line-height:2;
+
+    white-space:pre-line;
+
+    color:#dce8ff;
+
+    font-size:15px;
+
+}
