@@ -3,6 +3,7 @@
 const MAIN_DECK_LIMIT = 50;
 const DEFAULT_CARD_LIMIT = 4;
 const STORAGE_KEY = "digicardLabDeck";
+const FAVORITES_STORAGE_KEY ="digicardLabFavorites";
 
 const ANALYSIS_COLORS = [
     "赤",
@@ -18,6 +19,7 @@ const ANALYSIS_LEVELS = [2, 3, 4, 5, 6, 7];
 
 let cards = [];
 let deck = loadDeckFromStorage();
+let favorites = loadFavoritesFromStorage();
 let activeModalCardId = null;
 let toastTimer = null;
 
@@ -73,6 +75,9 @@ const activeSearchConditions =
 
 const cardSortSelect =
     document.getElementById("cardSortSelect");
+
+const favoriteOnlyFilter =
+    document.getElementById("favoriteOnlyFilter");
 
 const cardList =
     document.getElementById("cardList");
@@ -263,6 +268,9 @@ const modalSecurityEffect =
 
 const modalAddButton =
     document.getElementById("modalAddButton");
+
+const modalFavoriteButton =
+    document.getElementById("modalFavoriteButton");
 
 const modalRemoveButton =
     document.getElementById("modalRemoveButton");
@@ -479,6 +487,9 @@ function createCardHtml(card) {
     const deckQuantity =
         getDeckQuantity(card.id);
 
+    const favorite =
+        isFavorite(card.id);
+
     return `
         <article
             class="digimon-card"
@@ -487,6 +498,16 @@ function createCardHtml(card) {
             role="button"
             aria-label="${escapeHtml(card.name)}の詳細を開く"
         >
+            <button
+                class="card-favorite-button ${favorite ? "active" : ""}"
+                type="button"
+                data-toggle-favorite="${escapeHtml(card.id)}"
+                aria-label="${escapeHtml(card.name)}をお気に入り${favorite ? "から解除" : "に登録"}"
+                aria-pressed="${favorite}"
+                title="${favorite ? "お気に入りから解除" : "お気に入りに登録"}"
+            >
+                ${favorite ? "★" : "☆"}
+            </button>
 
             <button
                 class="card-add-button"
@@ -607,6 +628,9 @@ function filterCards() {
     const maximumDp =
         parseOptionalNumber(dpMax.value);
 
+    const favoriteOnly =
+        favoriteOnlyFilter?.checked || false;
+
     const filteredCards = cards.filter((card) => {
         const searchableText = normalizeSearchText([
             card.id,
@@ -679,6 +703,10 @@ function filterCards() {
                 maximumDp
             );
 
+        const matchesFavorite =
+            !favoriteOnly ||
+            isFavorite(card.id);
+
         return (
             matchesKeyword &&
             matchesColors &&
@@ -688,8 +716,9 @@ function filterCards() {
             matchesSet &&
             matchesTraits &&
             matchesPlayCost &&
-            matchesDp
-        );
+            matchesDp &&
+            matchesFavorite       
+         );
     });
 
         const sortedCards = sortCardResults(
@@ -843,7 +872,11 @@ function resetAdvancedSearch() {
 
     if (cardSortSelect) {
     cardSortSelect.value = "number";
-}
+    }
+
+    if (favoriteOnlyFilter) {
+        favoriteOnlyFilter.checked = false;
+    }
 
     advancedColorFilters.forEach(
         (checkbox) => {
@@ -861,6 +894,11 @@ function renderActiveSearchConditions(resultCount) {
     }
 
     const conditions = [];
+
+    if (favoriteOnlyFilter?.checked) {
+        conditions.push("お気に入りのみ");
+    }
+
 
     if (searchInput.value.trim()) {
         conditions.push(
@@ -2820,6 +2858,8 @@ function openCardModal(cardId) {
     activeModalCardId =
         cardId;
 
+    updateModalFavoriteButton();
+
     modalCardNumber.textContent =
         card.id || "-";
 
@@ -3063,6 +3103,110 @@ function updateModalDeckQuantity() {
 
     modalRemoveButton.disabled =
         quantity <= 0;
+}
+
+/* お気に入り */
+
+function isFavorite(cardId) {
+    return favorites.has(cardId);
+}
+
+function toggleFavorite(cardId) {
+    const card = findCard(cardId);
+
+    if (!card) {
+        showToast(
+            "カードが見つかりませんでした。",
+            true
+        );
+
+        return;
+    }
+
+    if (favorites.has(cardId)) {
+        favorites.delete(cardId);
+        showToast(
+            `${card.name}をお気に入りから解除しました。`
+        );
+    } else {
+        favorites.add(cardId);
+        showToast(
+            `${card.name}をお気に入りに登録しました。`
+        );
+    }
+
+    saveFavorites();
+    filterCards();
+    updateModalFavoriteButton();
+}
+
+function updateModalFavoriteButton() {
+    if (
+        !modalFavoriteButton ||
+        !activeModalCardId
+    ) {
+        return;
+    }
+
+    const favorite =
+        isFavorite(activeModalCardId);
+
+    modalFavoriteButton.textContent =
+        favorite
+            ? "★ お気に入り登録済み"
+            : "☆ お気に入り";
+
+    modalFavoriteButton.classList.toggle(
+        "active",
+        favorite
+    );
+
+    modalFavoriteButton.setAttribute(
+        "aria-pressed",
+        String(favorite)
+    );
+}
+
+function saveFavorites() {
+    localStorage.setItem(
+        FAVORITES_STORAGE_KEY,
+        JSON.stringify([...favorites])
+    );
+}
+
+function loadFavoritesFromStorage() {
+    try {
+        const savedFavorites =
+            localStorage.getItem(
+                FAVORITES_STORAGE_KEY
+            );
+
+        if (!savedFavorites) {
+            return new Set();
+        }
+
+        const parsedFavorites =
+            JSON.parse(savedFavorites);
+
+        if (!Array.isArray(parsedFavorites)) {
+            return new Set();
+        }
+
+        return new Set(
+            parsedFavorites.filter(
+                (cardId) =>
+                    typeof cardId === "string"
+            )
+        );
+
+    } catch (error) {
+        console.error(
+            "お気に入りの読み込みに失敗しました。",
+            error
+        );
+
+        return new Set();
+    }
 }
 
 /* 保存 */
@@ -3713,6 +3857,11 @@ cardSortSelect.addEventListener(
     filterCards
 );
 
+favoriteOnlyFilter.addEventListener(
+    "change",
+    filterCards
+);
+
 deckSearchInput.addEventListener(
     "input",
     renderDeck
@@ -3731,6 +3880,22 @@ clearDeckButton.addEventListener(
 cardList.addEventListener(
     "click",
     (event) => {
+        const favoriteButton =
+            event.target.closest(
+                "[data-toggle-favorite]"
+            );
+
+        if (favoriteButton) {
+            event.stopPropagation();
+
+            toggleFavorite(
+                favoriteButton.dataset
+                    .toggleFavorite
+            );
+
+            return;
+        }
+
         const imageButton =
             event.target.closest(
                 "[data-card-image-id]"
@@ -3843,6 +4008,17 @@ deckList.addEventListener(
             removeCardCompletely(
                 removeButton.dataset
                     .removeCard
+            );
+        }
+    }
+);
+
+modalFavoriteButton.addEventListener(
+    "click",
+    () => {
+        if (activeModalCardId) {
+            toggleFavorite(
+                activeModalCardId
             );
         }
     }

@@ -308,17 +308,29 @@
                 <h2>検索結果</h2>
             </div>
 
-            <label class="card-sort-field">
-                <span>並び順</span>
-                <select id="cardSortSelect">
-                    <option value="number">カード番号順</option>
-                    <option value="name">カード名順</option>
-                    <option value="level-asc">レベルが低い順</option>
-                    <option value="level-desc">レベルが高い順</option>
-                    <option value="dp-desc">DPが高い順</option>
-                    <option value="cost-asc">登場コストが低い順</option>
-                </select>
-            </label>
+            <div class="card-result-actions">
+
+                <label class="favorite-only-filter">
+                    <input
+                        id="favoriteOnlyFilter"
+                        type="checkbox"
+                    >
+                    <span>★ お気に入りのみ</span>
+                </label>
+
+                <label class="card-sort-field">
+                    <span>並び順</span>
+                    <select id="cardSortSelect">
+                        <option value="number">カード番号順</option>
+                        <option value="name">カード名順</option>
+                        <option value="level-asc">レベルが低い順</option>
+                        <option value="level-desc">レベルが高い順</option>
+                        <option value="dp-desc">DPが高い順</option>
+                        <option value="cost-asc">登場コストが低い順</option>
+                    </select>
+                </label>
+
+            </div>
 
         </div>
 
@@ -945,6 +957,15 @@
                     <span id="modalDeckQuantity">
                         0枚
                     </span>
+
+                    <button
+                        id="modalFavoriteButton"
+                        class="modal-favorite-button"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        ☆ お気に入り
+                    </button>
 
                     <button
                         id="modalAddButton"
