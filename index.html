@@ -505,6 +505,61 @@
 
         </section>
 
+            <section class="deck-share-panel">
+
+        <div class="saved-decks-heading">
+            <div>
+                <p class="panel-kicker">DECK SHARE</p>
+                <h2>📤 デッキ共有</h2>
+                <p>
+                    作成したデッキを共有コードで
+                    やり取りできます。
+                </p>
+            </div>
+        </div>
+
+        <div class="deck-share-actions">
+
+            <button
+                id="generateShareCodeButton"
+                class="primary-button"
+                type="button">
+                📤 共有コード生成
+            </button>
+
+            <button
+                id="copyShareCodeButton"
+                class="secondary-button"
+                type="button">
+                📋 コピー
+            </button>
+
+        </div>
+
+        <textarea
+            id="shareCodeOutput"
+            class="share-code-area"
+            rows="6"
+            readonly
+            placeholder="ここに共有コードが表示されます">
+        </textarea>
+
+        <textarea
+            id="shareCodeInput"
+            class="share-code-area"
+            rows="6"
+            placeholder="共有コードを貼り付けてください">
+        </textarea>
+
+        <button
+            id="importShareCodeButton"
+            class="primary-button"
+            type="button">
+            📥 読み込む
+        </button>
+
+    </section>
+
         <div class="deck-toolbar">
 
             <input

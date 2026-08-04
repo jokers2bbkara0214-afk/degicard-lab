@@ -5,6 +5,16 @@ const DEFAULT_CARD_LIMIT = 4;
 const STORAGE_KEY = "digicardLabDeck";
 const FAVORITES_STORAGE_KEY ="digicardLabFavorites";
 const SAVED_DECKS_STORAGE_KEY = "digicardLabSavedDecks";
+const generateShareCodeButton =
+    document.getElementById("generateShareCodeButton");
+const copyShareCodeButton =
+    document.getElementById("copyShareCodeButton");
+const importShareCodeButton =
+    document.getElementById("importShareCodeButton");
+const shareCodeOutput =
+    document.getElementById("shareCodeOutput");
+const shareCodeInput =
+    document.getElementById("shareCodeInput");
 
 const ANALYSIS_COLORS = [
     "赤",
@@ -4997,6 +5007,118 @@ evolutionDetailAddButton.addEventListener(
 
     }
 );
+
+function createShareData() {
+    return {
+        version: "1.0",
+        createdAt: new Date().toISOString(),
+        deck: { ...deck }
+    };
+}
+
+function generateShareCode() {
+
+    const data = createShareData();
+
+    const json = JSON.stringify(data);
+
+    const code = btoa(
+        unescape(
+            encodeURIComponent(json)
+        )
+    );
+
+    shareCodeOutput.value = "DCL1:" + code;
+
+}
+if (generateShareCodeButton) {
+
+    generateShareCodeButton.addEventListener(
+        "click",
+        generateShareCode
+    );
+
+}
+
+function copyShareCode() {
+
+    if (!shareCodeOutput.value) {
+
+        alert("共有コードを生成してください。");
+        return;
+
+    }
+
+    navigator.clipboard.writeText(
+        shareCodeOutput.value
+    );
+
+    alert("共有コードをコピーしました！");
+}
+
+if (copyShareCodeButton) {
+
+    copyShareCodeButton.addEventListener(
+        "click",
+        copyShareCode
+    );
+
+}
+
+function importShareCode() {
+
+    const text = shareCodeInput.value.trim();
+
+    if (!text) {
+        alert("共有コードを入力してください。");
+        return;
+    }
+
+    if (!text.startsWith("DCL1:")) {
+        alert("共有コードの形式が違います。");
+        return;
+    }
+
+    try {
+
+        const base64 = text.replace("DCL1:", "");
+
+        const json = decodeURIComponent(
+            escape(
+                atob(base64)
+            )
+        );
+
+        const data = JSON.parse(json);
+
+        if (!data.deck) {
+            throw new Error();
+        }
+
+        deck = data.deck;
+
+        saveDeck();
+
+        renderDeck();
+
+        alert("デッキを読み込みました！");
+
+    } catch {
+
+        alert("共有コードを読み込めませんでした。");
+
+    }
+
+}
+
+if (importShareCodeButton) {
+
+    importShareCodeButton.addEventListener(
+        "click",
+        importShareCode
+    );
+
+}
 
 /* 起動 */
 

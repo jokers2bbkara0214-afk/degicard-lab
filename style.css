@@ -2616,4 +2616,77 @@ body.image-lightbox-open {
         flex: 1 1 calc(50% - 7px);
     }
 }
+/* =========================================================
+   Commit13：デッキ共有
+========================================================= */
 
+.deck-share-panel {
+    margin-top: 24px;
+    padding: 24px;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(88, 166, 255, 0.08),
+            transparent 45%
+        ),
+        var(--panel);
+    border: 1px solid rgba(88, 166, 255, 0.35);
+    border-radius: 18px;
+}
+
+.deck-share-panel .saved-decks-heading {
+    margin-bottom: 18px;
+}
+
+.deck-share-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.deck-share-actions .primary-button,
+.deck-share-actions .secondary-button,
+.deck-share-panel > .primary-button {
+    margin-top: 0;
+}
+
+.share-code-area {
+    width: 100%;
+    min-height: 130px;
+    margin-bottom: 14px;
+    padding: 14px;
+    color: var(--text);
+    font-family:
+        Consolas,
+        "Courier New",
+        monospace;
+    line-height: 1.6;
+    resize: vertical;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    outline: none;
+}
+
+.share-code-area:focus {
+    border-color: var(--primary);
+    box-shadow:
+        0 0 0 3px rgba(88, 166, 255, 0.12);
+}
+
+.share-code-area[readonly] {
+    color: #c9d1d9;
+    background: #0b0f14;
+}
+
+@media (max-width: 700px) {
+    .deck-share-actions {
+        flex-direction: column;
+    }
+
+    .deck-share-actions button,
+    .deck-share-panel > .primary-button {
+        width: 100%;
+    }
+}
