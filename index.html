@@ -426,6 +426,85 @@
 
         </div>
 
+
+
+        <section class="saved-decks-panel" aria-labelledby="savedDecksTitle">
+
+            <div class="saved-decks-heading">
+                <div>
+                    <p class="panel-kicker">MY DECK LIBRARY</p>
+                    <h2 id="savedDecksTitle">💾 マイデッキ保存</h2>
+                    <p>現在のデッキに名前を付けて、ブラウザ内へ複数保存できます。</p>
+                </div>
+
+                <span
+                    id="savedDeckCount"
+                    class="saved-deck-count"
+                >
+                    0件
+                </span>
+            </div>
+
+            <div class="saved-deck-save-row">
+                <label class="saved-deck-name-field">
+                    <span>保存するデッキ名</span>
+                    <input
+                        id="savedDeckNameInput"
+                        type="text"
+                        maxlength="40"
+                        placeholder="例：赤アグモンデッキ"
+                    >
+                </label>
+
+                <button
+                    id="saveNamedDeckButton"
+                    class="primary-button saved-deck-main-button"
+                    type="button"
+                >
+                    💾 新しく保存
+                </button>
+            </div>
+
+            <div class="saved-deck-file-actions">
+                <button
+                    id="exportCurrentDeckButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    📤 現在のデッキをJSON出力
+                </button>
+
+                <button
+                    id="exportAllDecksButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    📦 保存デッキをまとめて出力
+                </button>
+
+                <button
+                    id="importDeckButton"
+                    class="secondary-button"
+                    type="button"
+                >
+                    📥 JSONを読み込む
+                </button>
+
+                <input
+                    id="importDeckFileInput"
+                    class="visually-hidden"
+                    type="file"
+                    accept="application/json,.json"
+                >
+            </div>
+
+            <div
+                id="savedDeckList"
+                class="saved-deck-list"
+            ></div>
+
+        </section>
+
         <div class="deck-toolbar">
 
             <input

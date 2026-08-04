@@ -4,6 +4,7 @@ const MAIN_DECK_LIMIT = 50;
 const DEFAULT_CARD_LIMIT = 4;
 const STORAGE_KEY = "digicardLabDeck";
 const FAVORITES_STORAGE_KEY ="digicardLabFavorites";
+const SAVED_DECKS_STORAGE_KEY = "digicardLabSavedDecks";
 
 const ANALYSIS_COLORS = [
     "赤",
@@ -20,6 +21,7 @@ const ANALYSIS_LEVELS = [2, 3, 4, 5, 6, 7];
 let cards = [];
 let deck = loadDeckFromStorage();
 let favorites = loadFavoritesFromStorage();
+let savedDecks = loadSavedDecksFromStorage();
 let activeModalCardId = null;
 let toastTimer = null;
 
@@ -98,6 +100,30 @@ const deckSortSelect =
 
 const clearDeckButton =
     document.getElementById("clearDeckButton");
+
+const savedDeckNameInput =
+    document.getElementById("savedDeckNameInput");
+
+const saveNamedDeckButton =
+    document.getElementById("saveNamedDeckButton");
+
+const exportCurrentDeckButton =
+    document.getElementById("exportCurrentDeckButton");
+
+const exportAllDecksButton =
+    document.getElementById("exportAllDecksButton");
+
+const importDeckButton =
+    document.getElementById("importDeckButton");
+
+const importDeckFileInput =
+    document.getElementById("importDeckFileInput");
+
+const savedDeckList =
+    document.getElementById("savedDeckList");
+
+const savedDeckCount =
+    document.getElementById("savedDeckCount");
 
 const deckTotalCount =
     document.getElementById("deckTotalCount");
@@ -419,6 +445,7 @@ async function loadCards() {
         removeUnknownCardsFromDeck();
         renderCards(cards);
         updateAllDeckDisplays();
+        renderSavedDecks();
 
     } catch (error) {
         console.error(error);
@@ -1177,6 +1204,584 @@ function clearDeck() {
     showToast(
         "デッキを空にしました。"
     );
+}
+
+/* マイデッキ保存・読込 */
+
+function renderSavedDecks() {
+    if (!savedDeckList || !savedDeckCount) {
+        return;
+    }
+
+    const orderedDecks = [...savedDecks]
+        .sort((a, b) =>
+            String(b.updatedAt || "").localeCompare(
+                String(a.updatedAt || "")
+            )
+        );
+
+    savedDeckCount.textContent =
+        `${orderedDecks.length}件`;
+
+    if (orderedDecks.length === 0) {
+        savedDeckList.innerHTML = `
+            <p class="saved-deck-empty">
+                保存されたデッキはありません。<br>
+                現在のデッキに名前を付けて保存してみましょう。
+            </p>
+        `;
+
+        return;
+    }
+
+    savedDeckList.innerHTML = orderedDecks
+        .map((savedDeck) => {
+            const total = getDeckObjectTotal(
+                savedDeck.cards
+            );
+
+            const uniqueCount = Object.keys(
+                savedDeck.cards || {}
+            ).length;
+
+            const updatedText = formatSavedDeckDate(
+                savedDeck.updatedAt
+            );
+
+            return `
+                <article class="saved-deck-item">
+                    <div class="saved-deck-info">
+                        <h3>${escapeHtml(savedDeck.name)}</h3>
+
+                        <div class="saved-deck-meta">
+                            <span>${total} / ${MAIN_DECK_LIMIT}枚</span>
+                            <span>${uniqueCount}種類</span>
+                            <span>更新：${escapeHtml(updatedText)}</span>
+                        </div>
+                    </div>
+
+                    <div class="saved-deck-actions">
+                        <button
+                            class="saved-deck-action-button"
+                            type="button"
+                            data-load-saved-deck="${escapeHtml(savedDeck.id)}"
+                        >
+                            読み込む
+                        </button>
+
+                        <button
+                            class="saved-deck-action-button"
+                            type="button"
+                            data-overwrite-saved-deck="${escapeHtml(savedDeck.id)}"
+                        >
+                            上書き
+                        </button>
+
+                        <button
+                            class="saved-deck-action-button"
+                            type="button"
+                            data-rename-saved-deck="${escapeHtml(savedDeck.id)}"
+                        >
+                            名前変更
+                        </button>
+
+                        <button
+                            class="saved-deck-action-button"
+                            type="button"
+                            data-export-saved-deck="${escapeHtml(savedDeck.id)}"
+                        >
+                            JSON
+                        </button>
+
+                        <button
+                            class="saved-deck-action-button danger"
+                            type="button"
+                            data-delete-saved-deck="${escapeHtml(savedDeck.id)}"
+                        >
+                            削除
+                        </button>
+                    </div>
+                </article>
+            `;
+        })
+        .join("");
+}
+
+function saveCurrentDeckAsNew() {
+    const name = String(
+        savedDeckNameInput?.value || ""
+    ).trim();
+
+    if (!name) {
+        showToast(
+            "保存するデッキ名を入力してください。",
+            true
+        );
+
+        savedDeckNameInput?.focus();
+        return;
+    }
+
+    if (getDeckTotal() === 0) {
+        showToast(
+            "カードを1枚以上追加してから保存してください。",
+            true
+        );
+        return;
+    }
+
+    const now = new Date().toISOString();
+
+    savedDecks.push({
+        id: createSavedDeckId(),
+        name,
+        cards: cloneDeckObject(deck),
+        createdAt: now,
+        updatedAt: now
+    });
+
+    saveSavedDecks();
+    renderSavedDecks();
+
+    savedDeckNameInput.value = "";
+
+    showToast(
+        `「${name}」をマイデッキへ保存しました。`
+    );
+}
+
+function loadSavedDeck(savedDeckId) {
+    const savedDeck = findSavedDeck(savedDeckId);
+
+    if (!savedDeck) {
+        showToast(
+            "保存デッキが見つかりませんでした。",
+            true
+        );
+        return;
+    }
+
+    if (
+        getDeckTotal() > 0 &&
+        !window.confirm(
+            `現在のデッキを「${savedDeck.name}」へ置き換えますか？`
+        )
+    ) {
+        return;
+    }
+
+    deck = sanitizeDeckObject(savedDeck.cards);
+
+    saveDeck();
+    updateAllDeckDisplays();
+
+    showToast(
+        `「${savedDeck.name}」を読み込みました。`
+    );
+}
+
+function overwriteSavedDeck(savedDeckId) {
+    const savedDeck = findSavedDeck(savedDeckId);
+
+    if (!savedDeck) {
+        showToast(
+            "保存デッキが見つかりませんでした。",
+            true
+        );
+        return;
+    }
+
+    if (getDeckTotal() === 0) {
+        showToast(
+            "空のデッキでは上書きできません。",
+            true
+        );
+        return;
+    }
+
+    const confirmed = window.confirm(
+        `「${savedDeck.name}」を現在の内容で上書きしますか？`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    savedDeck.cards = cloneDeckObject(deck);
+    savedDeck.updatedAt = new Date().toISOString();
+
+    saveSavedDecks();
+    renderSavedDecks();
+
+    showToast(
+        `「${savedDeck.name}」を上書き保存しました。`
+    );
+}
+
+function renameSavedDeck(savedDeckId) {
+    const savedDeck = findSavedDeck(savedDeckId);
+
+    if (!savedDeck) {
+        return;
+    }
+
+    const newName = window.prompt(
+        "新しいデッキ名を入力してください。",
+        savedDeck.name
+    );
+
+    if (newName === null) {
+        return;
+    }
+
+    const trimmedName = newName.trim();
+
+    if (!trimmedName) {
+        showToast(
+            "デッキ名を入力してください。",
+            true
+        );
+        return;
+    }
+
+    savedDeck.name = trimmedName.slice(0, 40);
+    savedDeck.updatedAt = new Date().toISOString();
+
+    saveSavedDecks();
+    renderSavedDecks();
+
+    showToast("デッキ名を変更しました。");
+}
+
+function deleteSavedDeck(savedDeckId) {
+    const savedDeck = findSavedDeck(savedDeckId);
+
+    if (!savedDeck) {
+        return;
+    }
+
+    const confirmed = window.confirm(
+        `「${savedDeck.name}」を削除しますか？`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    savedDecks = savedDecks.filter(
+        (item) => item.id !== savedDeckId
+    );
+
+    saveSavedDecks();
+    renderSavedDecks();
+
+    showToast(
+        `「${savedDeck.name}」を削除しました。`
+    );
+}
+
+function exportCurrentDeck() {
+    if (getDeckTotal() === 0) {
+        showToast(
+            "出力するカードがありません。",
+            true
+        );
+        return;
+    }
+
+    const inputName = String(
+        savedDeckNameInput?.value || ""
+    ).trim();
+
+    const name = inputName || "現在のデッキ";
+    const now = new Date().toISOString();
+
+    downloadJsonFile(
+        createDeckExportData({
+            id: createSavedDeckId(),
+            name,
+            cards: cloneDeckObject(deck),
+            createdAt: now,
+            updatedAt: now
+        }),
+        `${createSafeFileName(name)}.json`
+    );
+
+    showToast("現在のデッキをJSON出力しました。");
+}
+
+function exportSavedDeck(savedDeckId) {
+    const savedDeck = findSavedDeck(savedDeckId);
+
+    if (!savedDeck) {
+        return;
+    }
+
+    downloadJsonFile(
+        createDeckExportData(savedDeck),
+        `${createSafeFileName(savedDeck.name)}.json`
+    );
+
+    showToast(
+        `「${savedDeck.name}」をJSON出力しました。`
+    );
+}
+
+function exportAllSavedDecks() {
+    if (savedDecks.length === 0) {
+        showToast(
+            "保存されているデッキがありません。",
+            true
+        );
+        return;
+    }
+
+    downloadJsonFile(
+        {
+            app: "DigiCard Lab",
+            version: 1,
+            type: "deck-library",
+            exportedAt: new Date().toISOString(),
+            decks: savedDecks.map((savedDeck) => ({
+                ...savedDeck,
+                cards: cloneDeckObject(savedDeck.cards)
+            }))
+        },
+        "digicard-lab-decks.json"
+    );
+
+    showToast("保存デッキをまとめてJSON出力しました。");
+}
+
+async function importDeckFile(file) {
+    if (!file) {
+        return;
+    }
+
+    try {
+        const text = await file.text();
+        const parsedData = JSON.parse(text);
+        const importedDecks = parseImportedDeckData(
+            parsedData
+        );
+
+        if (importedDecks.length === 0) {
+            throw new Error(
+                "読み込めるデッキがありません。"
+            );
+        }
+
+        savedDecks.push(...importedDecks);
+
+        saveSavedDecks();
+        renderSavedDecks();
+
+        showToast(
+            `${importedDecks.length}件のデッキを読み込みました。`
+        );
+
+    } catch (error) {
+        console.error(error);
+
+        showToast(
+            "JSONファイルを読み込めませんでした。",
+            true
+        );
+
+    } finally {
+        if (importDeckFileInput) {
+            importDeckFileInput.value = "";
+        }
+    }
+}
+
+function parseImportedDeckData(data) {
+    let sourceDecks = [];
+
+    if (
+        data?.type === "deck-library" &&
+        Array.isArray(data.decks)
+    ) {
+        sourceDecks = data.decks;
+
+    } else if (
+        data?.type === "deck" &&
+        data.deck
+    ) {
+        sourceDecks = [data.deck];
+
+    } else if (
+        data &&
+        typeof data === "object" &&
+        data.cards
+    ) {
+        sourceDecks = [data];
+    }
+
+    return sourceDecks
+        .map((item) => {
+            const cardsData = sanitizeDeckObject(
+                item.cards
+            );
+
+            if (getDeckObjectTotal(cardsData) === 0) {
+                return null;
+            }
+
+            const now = new Date().toISOString();
+
+            return {
+                id: createSavedDeckId(),
+                name: String(
+                    item.name || "読み込んだデッキ"
+                ).trim().slice(0, 40) ||
+                    "読み込んだデッキ",
+                cards: cardsData,
+                createdAt: item.createdAt || now,
+                updatedAt: now
+            };
+        })
+        .filter(Boolean);
+}
+
+function createDeckExportData(savedDeck) {
+    return {
+        app: "DigiCard Lab",
+        version: 1,
+        type: "deck",
+        exportedAt: new Date().toISOString(),
+        deck: {
+            ...savedDeck,
+            cards: cloneDeckObject(savedDeck.cards)
+        }
+    };
+}
+
+function downloadJsonFile(data, fileName) {
+    const blob = new Blob(
+        [JSON.stringify(data, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download = fileName;
+
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+function findSavedDeck(savedDeckId) {
+    return savedDecks.find(
+        (savedDeck) =>
+            savedDeck.id === savedDeckId
+    );
+}
+
+function createSavedDeckId() {
+    return `deck-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
+}
+
+function createSafeFileName(name) {
+    const safeName = String(name || "deck")
+        .normalize("NFKC")
+        .replace(/[\\/:*?"<>|]/g, "-")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 60);
+
+    return safeName || "deck";
+}
+
+function formatSavedDeckDate(value) {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "日時不明";
+    }
+
+    return new Intl.DateTimeFormat(
+        "ja-JP",
+        {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+        }
+    ).format(date);
+}
+
+function cloneDeckObject(deckData) {
+    return { ...(deckData || {}) };
+}
+
+function getDeckObjectTotal(deckData) {
+    return Object.values(deckData || {})
+        .reduce(
+            (total, quantity) =>
+                total + Number(quantity || 0),
+            0
+        );
+}
+
+function sanitizeDeckObject(deckData) {
+    if (
+        !deckData ||
+        typeof deckData !== "object" ||
+        Array.isArray(deckData)
+    ) {
+        return {};
+    }
+
+    const sanitizedDeck = {};
+    let total = 0;
+
+    Object.entries(deckData)
+        .forEach(([cardId, quantity]) => {
+            const card = findCard(cardId);
+
+            if (!card || total >= MAIN_DECK_LIMIT) {
+                return;
+            }
+
+            if (
+                card.isDigiEgg ||
+                card.cardType === "デジタマ"
+            ) {
+                return;
+            }
+
+            const cardLimit = Number(
+                card.deckLimit ?? DEFAULT_CARD_LIMIT
+            );
+
+            const safeQuantity = Math.min(
+                Math.max(
+                    Math.floor(Number(quantity) || 0),
+                    0
+                ),
+                cardLimit,
+                MAIN_DECK_LIMIT - total
+            );
+
+            if (safeQuantity <= 0) {
+                return;
+            }
+
+            sanitizedDeck[cardId] = safeQuantity;
+            total += safeQuantity;
+        });
+
+    return sanitizedDeck;
 }
 
 /* デッキ表示 */
@@ -3253,6 +3858,63 @@ function loadDeckFromStorage() {
     }
 }
 
+function saveSavedDecks() {
+    localStorage.setItem(
+        SAVED_DECKS_STORAGE_KEY,
+        JSON.stringify(savedDecks)
+    );
+}
+
+function loadSavedDecksFromStorage() {
+    try {
+        const savedData = localStorage.getItem(
+            SAVED_DECKS_STORAGE_KEY
+        );
+
+        if (!savedData) {
+            return [];
+        }
+
+        const parsedData = JSON.parse(savedData);
+
+        if (!Array.isArray(parsedData)) {
+            return [];
+        }
+
+        return parsedData
+            .filter((item) =>
+                item &&
+                typeof item === "object" &&
+                typeof item.id === "string" &&
+                typeof item.name === "string" &&
+                item.cards &&
+                typeof item.cards === "object" &&
+                !Array.isArray(item.cards)
+            )
+            .map((item) => ({
+                id: item.id,
+                name: item.name.slice(0, 40),
+                cards: cloneDeckObject(item.cards),
+                createdAt:
+                    item.createdAt ||
+                    new Date().toISOString(),
+                updatedAt:
+                    item.updatedAt ||
+                    item.createdAt ||
+                    new Date().toISOString()
+            }));
+
+    } catch (error) {
+        console.error(
+            "保存デッキの読み込みに失敗しました。",
+            error
+        );
+
+        return [];
+    }
+}
+
+
 function removeUnknownCardsFromDeck() {
     Object.keys(deck)
         .forEach((cardId) => {
@@ -3875,6 +4537,106 @@ deckSortSelect.addEventListener(
 clearDeckButton.addEventListener(
     "click",
     clearDeck
+);
+
+saveNamedDeckButton.addEventListener(
+    "click",
+    saveCurrentDeckAsNew
+);
+
+savedDeckNameInput.addEventListener(
+    "keydown",
+    (event) => {
+        if (event.key === "Enter") {
+            saveCurrentDeckAsNew();
+        }
+    }
+);
+
+exportCurrentDeckButton.addEventListener(
+    "click",
+    exportCurrentDeck
+);
+
+exportAllDecksButton.addEventListener(
+    "click",
+    exportAllSavedDecks
+);
+
+importDeckButton.addEventListener(
+    "click",
+    () => {
+        importDeckFileInput.click();
+    }
+);
+
+importDeckFileInput.addEventListener(
+    "change",
+    () => {
+        importDeckFile(
+            importDeckFileInput.files?.[0]
+        );
+    }
+);
+
+savedDeckList.addEventListener(
+    "click",
+    (event) => {
+        const loadButton = event.target.closest(
+            "[data-load-saved-deck]"
+        );
+
+        if (loadButton) {
+            loadSavedDeck(
+                loadButton.dataset.loadSavedDeck
+            );
+            return;
+        }
+
+        const overwriteButton = event.target.closest(
+            "[data-overwrite-saved-deck]"
+        );
+
+        if (overwriteButton) {
+            overwriteSavedDeck(
+                overwriteButton.dataset
+                    .overwriteSavedDeck
+            );
+            return;
+        }
+
+        const renameButton = event.target.closest(
+            "[data-rename-saved-deck]"
+        );
+
+        if (renameButton) {
+            renameSavedDeck(
+                renameButton.dataset.renameSavedDeck
+            );
+            return;
+        }
+
+        const exportButton = event.target.closest(
+            "[data-export-saved-deck]"
+        );
+
+        if (exportButton) {
+            exportSavedDeck(
+                exportButton.dataset.exportSavedDeck
+            );
+            return;
+        }
+
+        const deleteButton = event.target.closest(
+            "[data-delete-saved-deck]"
+        );
+
+        if (deleteButton) {
+            deleteSavedDeck(
+                deleteButton.dataset.deleteSavedDeck
+            );
+        }
+    }
 );
 
 cardList.addEventListener(

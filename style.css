@@ -2410,3 +2410,210 @@ body.image-lightbox-open {
         width: 100%;
     }
 }
+
+/* Commit 12: マイデッキ保存・読込 */
+
+.saved-decks-panel {
+    margin-bottom: 22px;
+    padding: 22px;
+    background:
+        linear-gradient(180deg, rgba(88, 166, 255, 0.07), transparent 48%),
+        var(--panel);
+    border: 1px solid rgba(88, 166, 255, 0.32);
+    border-radius: 18px;
+}
+
+.saved-decks-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.saved-decks-heading h2 {
+    margin-bottom: 7px;
+    font-size: 22px;
+}
+
+.saved-decks-heading p:last-child {
+    color: var(--sub-text);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.saved-deck-count {
+    min-width: 58px;
+    padding: 7px 11px;
+    color: #ffffff;
+    text-align: center;
+    background: var(--primary-dark);
+    border: 1px solid var(--primary);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.saved-deck-save-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+}
+
+.saved-deck-name-field {
+    display: grid;
+    gap: 8px;
+}
+
+.saved-deck-name-field > span {
+    color: #c9d1d9;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.saved-deck-main-button {
+    margin-top: 0;
+    white-space: nowrap;
+}
+
+.saved-deck-file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.saved-deck-list {
+    display: grid;
+    gap: 11px;
+    margin-top: 18px;
+}
+
+.saved-deck-empty {
+    padding: 25px 18px;
+    color: var(--sub-text);
+    text-align: center;
+    background: rgba(13, 17, 23, 0.6);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    line-height: 1.7;
+}
+
+.saved-deck-item {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 15px;
+    background: rgba(13, 17, 23, 0.75);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.saved-deck-item:hover {
+    border-color: rgba(88, 166, 255, 0.48);
+    transform: translateY(-1px);
+}
+
+.saved-deck-info {
+    min-width: 0;
+}
+
+.saved-deck-info h3 {
+    overflow: hidden;
+    margin-bottom: 6px;
+    font-size: 16px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.saved-deck-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 13px;
+    color: var(--sub-text);
+    font-size: 12px;
+}
+
+.saved-deck-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 7px;
+}
+
+.saved-deck-action-button {
+    padding: 8px 10px;
+    color: var(--text);
+    background: var(--panel-light);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.saved-deck-action-button:hover {
+    border-color: var(--primary);
+    background: #1b4b77;
+}
+
+.saved-deck-action-button.danger {
+    color: #ffb4af;
+}
+
+.saved-deck-action-button.danger:hover {
+    color: #ffffff;
+    background: #8b1e1e;
+    border-color: var(--danger);
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+@media (max-width: 820px) {
+    .saved-deck-save-row,
+    .saved-deck-item {
+        grid-template-columns: 1fr;
+    }
+
+    .saved-deck-main-button {
+        width: 100%;
+    }
+
+    .saved-deck-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 560px) {
+    .saved-decks-heading {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .saved-deck-count {
+        align-self: flex-start;
+    }
+
+    .saved-deck-file-actions > button {
+        width: 100%;
+    }
+
+    .saved-deck-action-button {
+        flex: 1 1 calc(50% - 7px);
+    }
+}
+
