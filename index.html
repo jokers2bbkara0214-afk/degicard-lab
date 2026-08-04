@@ -176,70 +176,130 @@
 
         </div>
 
-        <div class="filter-panel">
+        <section class="advanced-search-panel" aria-labelledby="advancedSearchTitle">
 
-            <input
-                id="searchInput"
-                type="search"
-                placeholder="カード名・カード番号で検索"
-            >
+            <div class="advanced-search-heading">
+                <div>
+                    <p class="panel-kicker">ADVANCED SEARCH</p>
+                    <h2 id="advancedSearchTitle">🔍 高機能カード検索</h2>
+                    <p>複数の条件を組み合わせて、目的のカードを絞り込めます。</p>
+                </div>
 
-            <select id="colorFilter">
+                <button
+                    id="resetSearchButton"
+                    class="secondary-button search-reset-button"
+                    type="button"
+                >
+                    条件をリセット
+                </button>
+            </div>
 
-                <option value="">
-                    すべての色
-                </option>
+            <div class="advanced-search-grid">
 
-                <option value="赤">赤</option>
-                <option value="青">青</option>
-                <option value="黄">黄</option>
-                <option value="緑">緑</option>
-                <option value="黒">黒</option>
-                <option value="紫">紫</option>
-                <option value="白">白</option>
+                <label class="search-field search-field-wide">
+                    <span>🔎 カード名・番号・効果</span>
+                    <input
+                        id="searchInput"
+                        type="search"
+                        placeholder="例：アグモン、BT1-010、DPを+1000"
+                    >
+                </label>
 
-            </select>
+                <label class="search-field">
+                    <span>🃏 カード種類</span>
+                    <select id="typeFilter">
+                        <option value="">すべての種類</option>
+                        <option value="デジモン">デジモン</option>
+                        <option value="デジタマ">デジタマ</option>
+                        <option value="テイマー">テイマー</option>
+                        <option value="オプション">オプション</option>
+                    </select>
+                </label>
 
-            <select id="typeFilter">
+                <label class="search-field">
+                    <span>⭐ レベル</span>
+                    <select id="levelFilter">
+                        <option value="">すべてのレベル</option>
+                        <option value="2">Lv.2</option>
+                        <option value="3">Lv.3</option>
+                        <option value="4">Lv.4</option>
+                        <option value="5">Lv.5</option>
+                        <option value="6">Lv.6</option>
+                        <option value="7">Lv.7</option>
+                    </select>
+                </label>
 
-                <option value="">
-                    すべての種類
-                </option>
+                <label class="search-field">
+                    <span>💎 レアリティ</span>
+                    <select id="rarityFilter">
+                        <option value="">すべてのレアリティ</option>
+                    </select>
+                </label>
 
-                <option value="デジモン">
-                    デジモン
-                </option>
+                <label class="search-field">
+                    <span>📦 収録パック</span>
+                    <select id="setFilter">
+                        <option value="">すべての収録パック</option>
+                    </select>
+                </label>
 
-                <option value="デジタマ">
-                    デジタマ
-                </option>
+                <label class="search-field search-field-wide">
+                    <span>👾 特徴・形態・属性</span>
+                    <input
+                        id="traitsFilter"
+                        type="search"
+                        placeholder="例：恐竜型、成長期、ワクチン種"
+                    >
+                </label>
 
-                <option value="テイマー">
-                    テイマー
-                </option>
+                <fieldset class="search-field search-field-wide color-filter-fieldset">
+                    <legend>🎨 色（複数選択可）</legend>
+                    <div id="colorFilterGroup" class="color-filter-group">
+                        <label><input type="checkbox" name="advancedColor" value="赤"><span class="color-chip color-red">赤</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="青"><span class="color-chip color-blue">青</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="黄"><span class="color-chip color-yellow">黄</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="緑"><span class="color-chip color-green">緑</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="黒"><span class="color-chip color-black">黒</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="紫"><span class="color-chip color-purple">紫</span></label>
+                        <label><input type="checkbox" name="advancedColor" value="白"><span class="color-chip color-white">白</span></label>
+                    </div>
+                </fieldset>
 
-                <option value="オプション">
-                    オプション
-                </option>
+                <div class="search-field range-field">
+                    <span>💰 登場コスト</span>
+                    <div class="range-inputs">
+                        <input id="playCostMin" type="number" min="0" placeholder="最小">
+                        <span>～</span>
+                        <input id="playCostMax" type="number" min="0" placeholder="最大">
+                    </div>
+                </div>
 
-            </select>
+                <div class="search-field range-field">
+                    <span>⚔️ DP</span>
+                    <div class="range-inputs">
+                        <input id="dpMin" type="number" min="0" step="1000" placeholder="最小">
+                        <span>～</span>
+                        <input id="dpMax" type="number" min="0" step="1000" placeholder="最大">
+                    </div>
+                </div>
 
-            <select id="levelFilter">
+            </div>
 
-                <option value="">
-                    すべてのレベル
-                </option>
+            <div class="advanced-search-footer">
+                <div id="activeSearchConditions" class="active-search-conditions" aria-live="polite">
+                    条件なし：すべてのカードを表示中
+                </div>
 
-                <option value="2">Lv.2</option>
-                <option value="3">Lv.3</option>
-                <option value="4">Lv.4</option>
-                <option value="5">Lv.5</option>
-                <option value="6">Lv.6</option>
-                <option value="7">Lv.7</option>
+                <button
+                    id="executeSearchButton"
+                    class="primary-button search-button"
+                    type="button"
+                >
+                    🔍 この条件で検索
+                </button>
+            </div>
 
-            </select>
-
-        </div>
+        </section>
 
         <div
             id="cardList"

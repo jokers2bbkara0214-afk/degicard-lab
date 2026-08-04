@@ -30,14 +30,46 @@ let scoreAnimationFrame = null;
 const searchInput =
     document.getElementById("searchInput");
 
-const colorFilter =
-    document.getElementById("colorFilter");
+const advancedColorFilters =
+    document.querySelectorAll(
+        'input[name="advancedColor"]'
+    );
 
 const typeFilter =
     document.getElementById("typeFilter");
 
 const levelFilter =
     document.getElementById("levelFilter");
+
+const rarityFilter =
+    document.getElementById("rarityFilter");
+
+const setFilter =
+    document.getElementById("setFilter");
+
+const traitsFilter =
+    document.getElementById("traitsFilter");
+
+const playCostMin =
+    document.getElementById("playCostMin");
+
+const playCostMax =
+    document.getElementById("playCostMax");
+
+const dpMin =
+    document.getElementById("dpMin");
+
+const dpMax =
+    document.getElementById("dpMax");
+
+const executeSearchButton =
+    document.getElementById("executeSearchButton");
+
+const resetSearchButton =
+    document.getElementById("resetSearchButton");
+
+const activeSearchConditions =
+    document.getElementById("activeSearchConditions");
 
 const cardList =
     document.getElementById("cardList");
@@ -358,6 +390,7 @@ async function loadCards() {
 
         cards = data;
 
+        populateAdvancedFilterOptions();
         removeUnknownCardsFromDeck();
         renderCards(cards);
         updateAllDeckDisplays();
@@ -515,13 +548,14 @@ function createCardHtml(card) {
 }
 
 function filterCards() {
-    const keyword =
+    const keyword = normalizeSearchText(
         searchInput.value
-            .trim()
-            .toLowerCase();
+    );
 
-    const selectedColor =
-        colorFilter.value;
+    const selectedColors =
+        [...advancedColorFilters]
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.value);
 
     const selectedType =
         typeFilter.value;
@@ -529,47 +563,356 @@ function filterCards() {
     const selectedLevel =
         levelFilter.value;
 
-    const filteredCards =
-        cards.filter((card) => {
-            const name =
-                String(card.name || "")
-                    .toLowerCase();
+    const selectedRarity =
+        rarityFilter.value;
 
-            const id =
-                String(card.id || "")
-                    .toLowerCase();
+    const selectedSet =
+        setFilter.value;
 
-            const matchesKeyword =
-                name.includes(keyword) ||
-                id.includes(keyword);
+    const traitsKeyword =
+        normalizeSearchText(
+            traitsFilter.value
+        );
 
-            const matchesColor =
-                selectedColor === "" ||
-                (
-                    Array.isArray(card.colors) &&
-                    card.colors.includes(
-                        selectedColor
-                    )
-                );
+    const minimumPlayCost =
+        parseOptionalNumber(
+            playCostMin.value
+        );
 
-            const matchesType =
-                selectedType === "" ||
-                card.cardType === selectedType;
+    const maximumPlayCost =
+        parseOptionalNumber(
+            playCostMax.value
+        );
 
-            const matchesLevel =
-                selectedLevel === "" ||
-                String(card.level) ===
-                    selectedLevel;
+    const minimumDp =
+        parseOptionalNumber(dpMin.value);
 
-            return (
-                matchesKeyword &&
-                matchesColor &&
-                matchesType &&
-                matchesLevel
+    const maximumDp =
+        parseOptionalNumber(dpMax.value);
+
+    const filteredCards = cards.filter((card) => {
+        const searchableText = normalizeSearchText([
+            card.id,
+            card.name,
+            card.effect,
+            card.inheritedEffect,
+            card.securityEffect,
+            card.form,
+            card.attribute,
+            ...(Array.isArray(card.traits)
+                ? card.traits
+                : [])
+        ].join(" "));
+
+        const traitText = normalizeSearchText([
+            card.form,
+            card.attribute,
+            ...(Array.isArray(card.traits)
+                ? card.traits
+                : [])
+        ].join(" "));
+
+        const cardColors =
+            Array.isArray(card.colors)
+                ? card.colors
+                : [];
+
+        const matchesKeyword =
+            keyword === "" ||
+            searchableText.includes(keyword);
+
+        const matchesColors =
+            selectedColors.length === 0 ||
+            selectedColors.some(
+                (color) =>
+                    cardColors.includes(color)
             );
-        });
+
+        const matchesType =
+            selectedType === "" ||
+            card.cardType === selectedType;
+
+        const matchesLevel =
+            selectedLevel === "" ||
+            String(card.level) === selectedLevel;
+
+        const matchesRarity =
+            selectedRarity === "" ||
+            card.rarity === selectedRarity;
+
+        const matchesSet =
+            selectedSet === "" ||
+            card.set === selectedSet;
+
+        const matchesTraits =
+            traitsKeyword === "" ||
+            traitText.includes(traitsKeyword);
+
+        const matchesPlayCost =
+            matchesNumberRange(
+                card.playCost,
+                minimumPlayCost,
+                maximumPlayCost
+            );
+
+        const matchesDp =
+            matchesNumberRange(
+                card.dp,
+                minimumDp,
+                maximumDp
+            );
+
+        return (
+            matchesKeyword &&
+            matchesColors &&
+            matchesType &&
+            matchesLevel &&
+            matchesRarity &&
+            matchesSet &&
+            matchesTraits &&
+            matchesPlayCost &&
+            matchesDp
+        );
+    });
 
     renderCards(filteredCards);
+    renderActiveSearchConditions(
+        filteredCards.length
+    );
+}
+
+function populateAdvancedFilterOptions() {
+    populateSelectOptions(
+        rarityFilter,
+        cards.map((card) => card.rarity),
+        "すべてのレアリティ"
+    );
+
+    populateSelectOptions(
+        setFilter,
+        cards.map((card) => card.set),
+        "すべての収録パック"
+    );
+}
+
+function populateSelectOptions(
+    selectElement,
+    values,
+    defaultLabel
+) {
+    if (!selectElement) {
+        return;
+    }
+
+    const currentValue =
+        selectElement.value;
+
+    const uniqueValues = [...new Set(
+        values
+            .filter((value) =>
+                value !== null &&
+                value !== undefined &&
+                String(value).trim() !== ""
+            )
+            .map((value) => String(value))
+    )].sort((a, b) =>
+        a.localeCompare(b, "ja")
+    );
+
+    selectElement.innerHTML = `
+        <option value="">
+            ${escapeHtml(defaultLabel)}
+        </option>
+
+        ${uniqueValues
+            .map(
+                (value) => `
+                    <option value="${escapeHtml(value)}">
+                        ${escapeHtml(value)}
+                    </option>
+                `
+            )
+            .join("")}
+    `;
+
+    if (uniqueValues.includes(currentValue)) {
+        selectElement.value = currentValue;
+    }
+}
+
+function resetAdvancedSearch() {
+    searchInput.value = "";
+    typeFilter.value = "";
+    levelFilter.value = "";
+    rarityFilter.value = "";
+    setFilter.value = "";
+    traitsFilter.value = "";
+    playCostMin.value = "";
+    playCostMax.value = "";
+    dpMin.value = "";
+    dpMax.value = "";
+
+    advancedColorFilters.forEach(
+        (checkbox) => {
+            checkbox.checked = false;
+        }
+    );
+
+    filterCards();
+    showToast("検索条件をリセットしました。");
+}
+
+function renderActiveSearchConditions(resultCount) {
+    if (!activeSearchConditions) {
+        return;
+    }
+
+    const conditions = [];
+
+    if (searchInput.value.trim()) {
+        conditions.push(
+            `キーワード：${searchInput.value.trim()}`
+        );
+    }
+
+    const selectedColors =
+        [...advancedColorFilters]
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.value);
+
+    if (selectedColors.length > 0) {
+        conditions.push(
+            `色：${selectedColors.join("・")}`
+        );
+    }
+
+    if (typeFilter.value) {
+        conditions.push(
+            `種類：${typeFilter.value}`
+        );
+    }
+
+    if (levelFilter.value) {
+        conditions.push(
+            `Lv.${levelFilter.value}`
+        );
+    }
+
+    if (rarityFilter.value) {
+        conditions.push(
+            `レアリティ：${rarityFilter.value}`
+        );
+    }
+
+    if (setFilter.value) {
+        conditions.push(
+            `収録：${setFilter.value}`
+        );
+    }
+
+    if (traitsFilter.value.trim()) {
+        conditions.push(
+            `特徴：${traitsFilter.value.trim()}`
+        );
+    }
+
+    const playCostText = formatRangeCondition(
+        playCostMin.value,
+        playCostMax.value,
+        "登場コスト"
+    );
+
+    if (playCostText) {
+        conditions.push(playCostText);
+    }
+
+    const dpText = formatRangeCondition(
+        dpMin.value,
+        dpMax.value,
+        "DP"
+    );
+
+    if (dpText) {
+        conditions.push(dpText);
+    }
+
+    activeSearchConditions.textContent =
+        conditions.length > 0
+            ? `${resultCount}件表示｜${conditions.join(" / ")}`
+            : `${resultCount}件表示｜条件なし：すべてのカードを表示中`;
+}
+
+function formatRangeCondition(
+    minimumValue,
+    maximumValue,
+    label
+) {
+    const minimum = String(minimumValue).trim();
+    const maximum = String(maximumValue).trim();
+
+    if (!minimum && !maximum) {
+        return "";
+    }
+
+    if (minimum && maximum) {
+        return `${label}：${minimum}～${maximum}`;
+    }
+
+    if (minimum) {
+        return `${label}：${minimum}以上`;
+    }
+
+    return `${label}：${maximum}以下`;
+}
+
+function normalizeSearchText(value) {
+    return String(value ?? "")
+        .normalize("NFKC")
+        .toLowerCase()
+        .replaceAll(/\s+/g, " ")
+        .trim();
+}
+
+function parseOptionalNumber(value) {
+    if (String(value).trim() === "") {
+        return null;
+    }
+
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : null;
+}
+
+function matchesNumberRange(
+    cardValue,
+    minimum,
+    maximum
+) {
+    if (minimum === null && maximum === null) {
+        return true;
+    }
+
+    if (!hasValue(cardValue)) {
+        return false;
+    }
+
+    const number = Number(cardValue);
+
+    if (!Number.isFinite(number)) {
+        return false;
+    }
+
+    if (minimum !== null && number < minimum) {
+        return false;
+    }
+
+    if (maximum !== null && number > maximum) {
+        return false;
+    }
+
+    return true;
 }
 
 /* デッキ操作 */
@@ -2612,22 +2955,25 @@ function createCardImageHtml(
     card,
     placeholderClass
 ) {
-    if (!card.image) {
-        return `
-            <span class="${placeholderClass}">
-                🃏
-            </span>
-        `;
-    }
+    const imagePath =
+        `./images/cards/${encodeURIComponent(card.id)}.webp`;
+
+    const fallbackPath =
+        "./images/cards/noimage.webp";
 
     return `
         <img
-            src="./images/cards/${escapeHtml(card.image)}"
-            alt="${escapeHtml(card.name)}"
+            src="${imagePath}"
+            alt="${escapeHtml(card.name || "カード画像")}"
             loading="lazy"
             onerror="
-                this.parentElement.innerHTML =
-                '<span class=&quot;${placeholderClass}&quot;>🃏</span>'
+                if (!this.dataset.fallback) {
+                    this.dataset.fallback = 'true';
+                    this.src = '${fallbackPath}';
+                } else {
+                    this.parentElement.innerHTML =
+                        '<span class=&quot;${placeholderClass}&quot;>🃏</span>';
+                }
             "
         >
     `;
@@ -3024,6 +3370,12 @@ function createEvolutionNodeHtml(
             ? `Lv.${card.level}`
             : "レベルなし";
 
+    const imageHtml =
+        createCardImageHtml(
+            card,
+            "card-placeholder"
+        );
+
     return `
         <article
             class="evolution-node ${
@@ -3033,6 +3385,20 @@ function createEvolutionNodeHtml(
             }"
             data-evolution-card-id="${escapeHtml(card.id)}"
         >
+            ${
+                isCurrent
+                    ? `
+                        <span class="evolution-current-badge">
+                            ⭐ 選択中
+                        </span>
+                    `
+                    : ""
+            }
+
+            <div class="evolution-node-image">
+                ${imageHtml}
+            </div>
+
             <p class="evolution-node-number">
                 ${escapeHtml(card.id)}
             </p>
@@ -3042,7 +3408,6 @@ function createEvolutionNodeHtml(
             </h2>
 
             <div class="evolution-node-tags">
-
                 ${colors
                     .map(
                         (color) => `
@@ -3060,7 +3425,6 @@ function createEvolutionNodeHtml(
                 <span class="card-tag">
                     ${escapeHtml(card.form || "-")}
                 </span>
-
             </div>
         </article>
     `;
@@ -3114,19 +3478,52 @@ searchInput.addEventListener(
     filterCards
 );
 
-colorFilter.addEventListener(
-    "change",
+traitsFilter.addEventListener(
+    "input",
     filterCards
 );
 
-typeFilter.addEventListener(
-    "change",
+[
+    typeFilter,
+    levelFilter,
+    rarityFilter,
+    setFilter
+].forEach((element) => {
+    element.addEventListener(
+        "change",
+        filterCards
+    );
+});
+
+[
+    playCostMin,
+    playCostMax,
+    dpMin,
+    dpMax
+].forEach((element) => {
+    element.addEventListener(
+        "input",
+        filterCards
+    );
+});
+
+advancedColorFilters.forEach(
+    (checkbox) => {
+        checkbox.addEventListener(
+            "change",
+            filterCards
+        );
+    }
+);
+
+executeSearchButton.addEventListener(
+    "click",
     filterCards
 );
 
-levelFilter.addEventListener(
-    "change",
-    filterCards
+resetSearchButton.addEventListener(
+    "click",
+    resetAdvancedSearch
 );
 
 deckSearchInput.addEventListener(
