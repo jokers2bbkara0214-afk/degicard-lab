@@ -2721,3 +2721,264 @@ body.image-lightbox-open {
     font-size:15px;
 
 }
+
+.ai-report-card{
+
+margin-top:28px;
+
+padding:28px;
+
+background:linear-gradient(
+180deg,
+rgba(88,166,255,.12),
+transparent
+),
+var(--panel);
+
+border:1px solid
+rgba(88,166,255,.3);
+
+border-radius:18px;
+
+}
+
+.ai-report-card h2{
+
+margin-bottom:22px;
+
+}
+
+.ai-report-card div{
+
+margin-bottom:18px;
+
+line-height:2;
+
+}
+
+/* =========================================================
+   Commit14-2：AI診断レポート
+========================================================= */
+
+.ai-report-summary {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 22px;
+    padding: 20px;
+    background:
+        linear-gradient(
+            135deg,
+            rgba(88, 166, 255, 0.16),
+            rgba(188, 140, 255, 0.08)
+        ),
+        var(--background);
+    border: 1px solid rgba(88, 166, 255, 0.35);
+    border-radius: 16px;
+}
+
+.ai-report-icon {
+    display: flex;
+    width: 64px;
+    height: 64px;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    background: var(--panel-light);
+    border-radius: 16px;
+}
+
+.ai-report-kicker {
+    margin-bottom: 5px;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1.6px;
+}
+
+.ai-report-summary h3 {
+    margin-bottom: 8px;
+    font-size: 22px;
+}
+
+.ai-report-summary p {
+    color: #c9d1d9;
+    line-height: 1.8;
+}
+
+.ai-report-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.ai-report-metrics > div {
+    padding: 16px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+}
+
+.ai-report-metrics span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--sub-text);
+    font-size: 12px;
+}
+
+.ai-report-metrics strong {
+    display: block;
+    font-size: 22px;
+}
+
+.ai-report-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.ai-report-section {
+    padding: 20px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+}
+
+.ai-report-section h3 {
+    margin-bottom: 14px;
+    font-size: 18px;
+}
+
+.ai-report-section.strength {
+    border-left: 4px solid var(--success);
+}
+
+.ai-report-section.weakness {
+    border-left: 4px solid var(--warning);
+}
+
+.ai-report-section.priority {
+    border-left: 4px solid var(--primary);
+}
+
+.ai-report-list {
+    display: grid;
+    gap: 10px;
+    padding-left: 20px;
+    color: #c9d1d9;
+    line-height: 1.75;
+}
+
+.ai-report-empty-text {
+    color: var(--sub-text);
+    line-height: 1.75;
+}
+
+.ai-priority-list {
+    display: grid;
+    gap: 12px;
+}
+
+.ai-priority-item {
+    display: grid;
+    grid-template-columns: 42px 1fr;
+    gap: 14px;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+}
+
+.ai-priority-item.high {
+    border-left: 4px solid var(--danger);
+}
+
+.ai-priority-item.medium {
+    border-left: 4px solid var(--warning);
+}
+
+.ai-priority-item.low {
+    border-left: 4px solid var(--primary);
+}
+
+.ai-priority-number {
+    display: flex;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: bold;
+    background: var(--primary-dark);
+    border-radius: 50%;
+}
+
+.ai-priority-label {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: var(--sub-text);
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.ai-priority-item h4 {
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.ai-priority-item p {
+    color: #c9d1d9;
+    line-height: 1.7;
+}
+
+.ai-report-empty {
+    display: flex;
+    min-height: 220px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+}
+
+.ai-report-empty-icon {
+    font-size: 40px;
+}
+
+.ai-report-empty p {
+    max-width: 520px;
+    color: var(--sub-text);
+    line-height: 1.8;
+}
+
+@media (max-width: 900px) {
+    .ai-report-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ai-report-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .ai-report-summary {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .ai-report-icon {
+        margin: 0 auto;
+    }
+
+    .ai-report-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .ai-priority-item {
+        grid-template-columns: 1fr;
+    }
+}

@@ -2226,7 +2226,7 @@ function renderAnalysis() {
     renderAnalysisCharts(
         analysis.scores
     );
-    
+
     generateAiDeckDiagnosis();
 }
 
@@ -5132,8 +5132,16 @@ function generateAiDeckDiagnosis() {
     const deckEntries = Object.entries(deck);
 
     if (deckEntries.length === 0) {
-        aiAnalysisResult.textContent =
-            "デッキにカードがありません。\nカードを追加すると診断できます。";
+        aiAnalysisResult.innerHTML = `
+            <div class="ai-report-empty">
+                <span class="ai-report-empty-icon">🤖</span>
+                <strong>診断するカードがありません</strong>
+                <p>
+                    カード図鑑からデッキへカードを追加すると、
+                    診断レポートが表示されます。
+                </p>
+            </div>
+        `;
         return;
     }
 
@@ -5145,6 +5153,7 @@ function generateAiDeckDiagnosis() {
     };
 
     const colorCounts = {};
+
     let totalCards = 0;
     let digimonCards = 0;
     let supportCards = 0;
@@ -5163,6 +5172,11 @@ function generateAiDeckDiagnosis() {
         }
 
         const count = Number(quantity) || 0;
+
+        if (count <= 0) {
+            return;
+        }
+
         totalCards += count;
 
         if (
@@ -5175,10 +5189,13 @@ function generateAiDeckDiagnosis() {
         }
 
         if (
-            card.level &&
-            Object.hasOwn(levelCounts, card.level)
+            hasValue(card.level) &&
+            Object.hasOwn(
+                levelCounts,
+                Number(card.level)
+            )
         ) {
-            levelCounts[card.level] += count;
+            levelCounts[Number(card.level)] += count;
         }
 
         if (Array.isArray(card.colors)) {
@@ -5188,13 +5205,23 @@ function generateAiDeckDiagnosis() {
             });
         }
 
-        if (card.playCost !== null && card.playCost !== undefined) {
-            totalPlayCost += Number(card.playCost) * count;
+        if (
+            hasValue(card.playCost) &&
+            Number.isFinite(Number(card.playCost))
+        ) {
+            totalPlayCost +=
+                Number(card.playCost) * count;
+
             playCostCount += count;
         }
 
-        if (card.dp !== null && card.dp !== undefined) {
-            totalDp += Number(card.dp) * count;
+        if (
+            hasValue(card.dp) &&
+            Number.isFinite(Number(card.dp))
+        ) {
+            totalDp +=
+                Number(card.dp) * count;
+
             dpCount += count;
         }
     });
@@ -5212,93 +5239,455 @@ function generateAiDeckDiagnosis() {
     const colorCount =
         Object.keys(colorCounts).length;
 
-    const comments = [];
-
-    if (totalCards < MAIN_DECK_LIMIT) {
-        comments.push(
-            `・デッキは現在${totalCards}枚です。50枚まであと${MAIN_DECK_LIMIT - totalCards}枚追加できます。`
-        );
-    } else {
-        comments.push(
-            "・デッキ枚数は50枚で完成しています。"
-        );
-    }
-
-    if (levelCounts[3] < 10) {
-        comments.push(
-            `・Lv.3が${levelCounts[3]}枚と少なめです。10〜14枚ほどあると序盤が安定しやすくなります。`
-        );
-    } else {
-        comments.push(
-            `・Lv.3は${levelCounts[3]}枚あり、序盤の土台は安定しています。`
-        );
-    }
-
-    if (levelCounts[4] < 8) {
-        comments.push(
-            `・Lv.4が${levelCounts[4]}枚です。8〜12枚を目安に増やすと、進化が途中で止まりにくくなります。`
-        );
-    }
-
-    if (levelCounts[5] < 6) {
-        comments.push(
-            `・Lv.5が${levelCounts[5]}枚です。6〜10枚ほどあるとLv.6へつなぎやすくなります。`
-        );
-    }
-
-    if (levelCounts[6] < 3) {
-        comments.push(
-            `・Lv.6が${levelCounts[6]}枚です。切り札を3〜6枚ほど用意すると勝ち筋を作りやすくなります。`
-        );
-    }
-
-    if (colorCount === 1) {
-        comments.push(
-            "・単色構成なので、進化条件や色条件を満たしやすく安定しています。"
-        );
-    } else if (colorCount >= 3) {
-        comments.push(
-            `・使用色が${colorCount}色あります。色条件が噛み合わない事故に注意してください。`
-        );
-    }
-
-    if (averagePlayCost >= 6) {
-        comments.push(
-            `・平均登場コストは${averagePlayCost.toFixed(1)}です。やや重いため、低コストカードを増やすと動きやすくなります。`
-        );
-    } else {
-        comments.push(
-            `・平均登場コストは${averagePlayCost.toFixed(1)}で、扱いやすい範囲です。`
-        );
-    }
-
-    if (averageDp > 0) {
-        comments.push(
-            `・デジモンの平均DPは${Math.round(averageDp).toLocaleString()}です。`
-        );
-    }
-
     const supportRatio =
         totalCards > 0
-            ? Math.round((supportCards / totalCards) * 100)
+            ? Math.round(
+                (supportCards / totalCards) * 100
+            )
             : 0;
 
-    if (supportRatio < 15) {
-        comments.push(
-            `・テイマー・オプションは全体の${supportRatio}%です。補助カードを少し増やすと対応力が上がります。`
+    const digimonRatio =
+        totalCards > 0
+            ? Math.round(
+                (digimonCards / totalCards) * 100
+            )
+            : 0;
+
+    const strengths = [];
+    const weaknesses = [];
+    const priorities = [];
+
+    /*
+     * デッキ枚数
+     */
+
+    if (totalCards === MAIN_DECK_LIMIT) {
+        strengths.push(
+            "メインデッキが50枚で完成しています。"
         );
-    } else if (supportRatio > 40) {
-        comments.push(
-            `・テイマー・オプションは全体の${supportRatio}%です。デジモン不足で進化しにくくならないか確認してください。`
+    } else if (totalCards < MAIN_DECK_LIMIT) {
+        weaknesses.push(
+            `現在${totalCards}枚です。あと${MAIN_DECK_LIMIT - totalCards}枚追加できます。`
         );
+
+        priorities.push({
+            level: "high",
+            label: "最優先",
+            title: "デッキを50枚まで完成させる",
+            text: `残り${MAIN_DECK_LIMIT - totalCards}枚を追加して、構成全体を整えましょう。`
+        });
     } else {
-        comments.push(
-            `・テイマー・オプション比率は${supportRatio}%で、バランスの良い範囲です。`
+        weaknesses.push(
+            `現在${totalCards}枚です。メインデッキ上限の50枚を超えています。`
+        );
+
+        priorities.push({
+            level: "high",
+            label: "最優先",
+            title: "デッキを50枚に調整する",
+            text: `${totalCards - MAIN_DECK_LIMIT}枚減らす必要があります。`
+        });
+    }
+
+    /*
+     * Lv.3
+     */
+
+    if (
+        levelCounts[3] >= 10 &&
+        levelCounts[3] <= 14
+    ) {
+        strengths.push(
+            `Lv.3が${levelCounts[3]}枚あり、序盤の進化元が安定しています。`
+        );
+    } else if (levelCounts[3] < 10) {
+        weaknesses.push(
+            `Lv.3が${levelCounts[3]}枚と少なめです。序盤にデジモンを出せない可能性があります。`
+        );
+
+        priorities.push({
+            level: "high",
+            label: "優先度 高",
+            title: "Lv.3を増やす",
+            text: "10〜14枚を目安にすると、序盤の動きが安定しやすくなります。"
+        });
+    } else {
+        weaknesses.push(
+            `Lv.3が${levelCounts[3]}枚と多めです。高レベルカードの枠を圧迫していないか確認しましょう。`
         );
     }
 
-    aiAnalysisResult.textContent =
-        comments.join("\n\n");
+    /*
+     * Lv.4
+     */
+
+    if (
+        levelCounts[4] >= 8 &&
+        levelCounts[4] <= 12
+    ) {
+        strengths.push(
+            `Lv.4が${levelCounts[4]}枚あり、成熟期への進化が安定しています。`
+        );
+    } else if (levelCounts[4] < 8) {
+        weaknesses.push(
+            `Lv.4が${levelCounts[4]}枚です。進化が途中で止まりやすい構成です。`
+        );
+
+        priorities.push({
+            level: "high",
+            label: "優先度 高",
+            title: "Lv.4を増やす",
+            text: "8〜12枚を目安に成熟期を追加しましょう。"
+        });
+    } else {
+        weaknesses.push(
+            `Lv.4が${levelCounts[4]}枚と多めです。Lv.5以上との比率を確認しましょう。`
+        );
+    }
+
+    /*
+     * Lv.5
+     */
+
+    if (
+        levelCounts[5] >= 6 &&
+        levelCounts[5] <= 10
+    ) {
+        strengths.push(
+            `Lv.5が${levelCounts[5]}枚あり、Lv.6へつなげやすい構成です。`
+        );
+    } else if (levelCounts[5] < 6) {
+        weaknesses.push(
+            `Lv.5が${levelCounts[5]}枚です。完全体を引けず、進化が止まる可能性があります。`
+        );
+
+        priorities.push({
+            level: "medium",
+            label: "優先度 中",
+            title: "Lv.5を補強する",
+            text: "6〜10枚を目安に完全体を追加すると、切り札へつなぎやすくなります。"
+        });
+    }
+
+    /*
+     * Lv.6
+     */
+
+    if (
+        levelCounts[6] >= 3 &&
+        levelCounts[6] <= 6
+    ) {
+        strengths.push(
+            `Lv.6が${levelCounts[6]}枚あり、切り札の枚数は良好です。`
+        );
+    } else if (levelCounts[6] < 3) {
+        weaknesses.push(
+            `Lv.6が${levelCounts[6]}枚です。勝ち筋となる切り札が少なめです。`
+        );
+
+        priorities.push({
+            level: "medium",
+            label: "優先度 中",
+            title: "Lv.6の切り札を追加する",
+            text: "3〜6枚を目安に、デッキのゴールとなるカードを用意しましょう。"
+        });
+    } else {
+        weaknesses.push(
+            `Lv.6が${levelCounts[6]}枚と多めです。序盤に使えないカードが手札へ集まりやすくなります。`
+        );
+    }
+
+    /*
+     * 色
+     */
+
+    if (colorCount === 1) {
+        strengths.push(
+            "単色構成なので、進化条件や色条件を満たしやすいです。"
+        );
+    } else if (colorCount === 2) {
+        strengths.push(
+            "2色構成です。カード同士の色条件が噛み合っているか確認できれば、選択肢の広い構成になります。"
+        );
+    } else if (colorCount >= 3) {
+        weaknesses.push(
+            `使用色が${colorCount}色あります。色条件が噛み合わない事故に注意が必要です。`
+        );
+
+        priorities.push({
+            level: "medium",
+            label: "優先度 中",
+            title: "使用色を整理する",
+            text: "中心となる1〜2色を決めると、進化とカード使用の安定性が上がります。"
+        });
+    }
+
+    /*
+     * 平均登場コスト
+     */
+
+    if (averagePlayCost > 0 && averagePlayCost < 4.5) {
+        strengths.push(
+            `平均登場コストは${averagePlayCost.toFixed(1)}で、軽く動きやすい構成です。`
+        );
+    } else if (
+        averagePlayCost >= 4.5 &&
+        averagePlayCost < 6
+    ) {
+        strengths.push(
+            `平均登場コストは${averagePlayCost.toFixed(1)}で、標準的な範囲です。`
+        );
+    } else if (averagePlayCost >= 6) {
+        weaknesses.push(
+            `平均登場コストは${averagePlayCost.toFixed(1)}です。カードを直接登場させる動きが重くなりやすいです。`
+        );
+
+        priorities.push({
+            level: "low",
+            label: "優先度 低",
+            title: "低コストカードを増やす",
+            text: "登場コストの軽いカードを採用すると、序盤の選択肢が増えます。"
+        });
+    }
+
+    /*
+     * サポート比率
+     */
+
+    if (
+        supportRatio >= 15 &&
+        supportRatio <= 40
+    ) {
+        strengths.push(
+            `テイマー・オプション比率は${supportRatio}%で、バランスの良い範囲です。`
+        );
+    } else if (supportRatio < 15) {
+        weaknesses.push(
+            `テイマー・オプションは${supportRatio}%です。補助カードが少なく、対応力が不足する可能性があります。`
+        );
+
+        priorities.push({
+            level: "low",
+            label: "優先度 低",
+            title: "補助カードを追加する",
+            text: "テイマーやオプションを少し増やすと、除去・展開補助・メモリー管理がしやすくなります。"
+        });
+    } else {
+        weaknesses.push(
+            `テイマー・オプションは${supportRatio}%です。デジモン不足で進化しにくくなる可能性があります。`
+        );
+
+        priorities.push({
+            level: "medium",
+            label: "優先度 中",
+            title: "デジモンの比率を増やす",
+            text: "進化ラインに必要なデジモンを増やし、手札事故を減らしましょう。"
+        });
+    }
+
+    /*
+     * 平均DP
+     */
+
+    if (averageDp >= 8000) {
+        strengths.push(
+            `デジモンの平均DPは${Math.round(averageDp).toLocaleString()}で、盤面で戦いやすい数値です。`
+        );
+    } else if (averageDp > 0) {
+        weaknesses.push(
+            `デジモンの平均DPは${Math.round(averageDp).toLocaleString()}です。低レベル中心の場合は、効果や進化速度で補えるか確認しましょう。`
+        );
+    }
+
+    /*
+     * 優先順位を高 → 中 → 低で並び替え
+     */
+
+    const priorityOrder = {
+        high: 1,
+        medium: 2,
+        low: 3
+    };
+
+    priorities.sort(
+        (a, b) =>
+            priorityOrder[a.level] -
+            priorityOrder[b.level]
+    );
+
+    /*
+     * 総評
+     */
+
+    let summaryTitle = "";
+    let summaryText = "";
+
+    if (
+        totalCards === MAIN_DECK_LIMIT &&
+        weaknesses.length <= 2
+    ) {
+        summaryTitle =
+            "完成度の高いデッキです";
+
+        summaryText =
+            "基本的な枚数配分が整っています。実際に対戦しながら、使いにくかったカードを少しずつ調整していきましょう。";
+    } else if (strengths.length >= weaknesses.length) {
+        summaryTitle =
+            "良い土台ができています";
+
+        summaryText =
+            "強みを残しながら、優先度の高い改善点から順番に調整すると、さらに安定したデッキになります。";
+    } else {
+        summaryTitle =
+            "伸びしろの大きいデッキです";
+
+        summaryText =
+            "まずは進化ラインとデッキ枚数を整えましょう。一度に全部変えず、最優先の項目から直すのがおすすめです。";
+    }
+
+    const createListHtml = (
+        items,
+        emptyMessage
+    ) => {
+        if (items.length === 0) {
+            return `
+                <p class="ai-report-empty-text">
+                    ${escapeHtml(emptyMessage)}
+                </p>
+            `;
+        }
+
+        return `
+            <ul class="ai-report-list">
+                ${items
+                    .map(
+                        (item) => `
+                            <li>
+                                ${escapeHtml(item)}
+                            </li>
+                        `
+                    )
+                    .join("")}
+            </ul>
+        `;
+    };
+
+    const priorityHtml =
+        priorities.length > 0
+            ? priorities
+                .slice(0, 4)
+                .map(
+                    (priority, index) => `
+                        <article class="ai-priority-item ${priority.level}">
+                            <div class="ai-priority-number">
+                                ${index + 1}
+                            </div>
+
+                            <div>
+                                <span class="ai-priority-label">
+                                    ${escapeHtml(priority.label)}
+                                </span>
+
+                                <h4>
+                                    ${escapeHtml(priority.title)}
+                                </h4>
+
+                                <p>
+                                    ${escapeHtml(priority.text)}
+                                </p>
+                            </div>
+                        </article>
+                    `
+                )
+                .join("")
+            : `
+                <p class="ai-report-empty-text">
+                    大きな改善点はありません。
+                    対戦結果に合わせて微調整しましょう。
+                </p>
+            `;
+
+    aiAnalysisResult.innerHTML = `
+        <div class="ai-report-summary">
+            <div class="ai-report-icon">🤖</div>
+
+            <div>
+                <p class="ai-report-kicker">
+                    AI DECK REPORT
+                </p>
+
+                <h3>
+                    ${escapeHtml(summaryTitle)}
+                </h3>
+
+                <p>
+                    ${escapeHtml(summaryText)}
+                </p>
+            </div>
+        </div>
+
+        <div class="ai-report-metrics">
+            <div>
+                <span>デッキ枚数</span>
+                <strong>
+                    ${totalCards} / ${MAIN_DECK_LIMIT}
+                </strong>
+            </div>
+
+            <div>
+                <span>デジモン比率</span>
+                <strong>
+                    ${digimonRatio}%
+                </strong>
+            </div>
+
+            <div>
+                <span>平均コスト</span>
+                <strong>
+                    ${averagePlayCost.toFixed(1)}
+                </strong>
+            </div>
+
+            <div>
+                <span>平均DP</span>
+                <strong>
+                    ${
+                        averageDp > 0
+                            ? Math.round(averageDp).toLocaleString()
+                            : "-"
+                    }
+                </strong>
+            </div>
+        </div>
+
+        <div class="ai-report-grid">
+            <section class="ai-report-section strength">
+                <h3>💪 強み</h3>
+
+                ${createListHtml(
+                    strengths,
+                    "現在、明確な強みはまだ判定できません。"
+                )}
+            </section>
+
+            <section class="ai-report-section weakness">
+                <h3>⚠️ 改善ポイント</h3>
+
+                ${createListHtml(
+                    weaknesses,
+                    "大きな改善点は見つかりませんでした。"
+                )}
+            </section>
+        </div>
+
+        <section class="ai-report-section priority">
+            <h3>🎯 改善する順番</h3>
+
+            <div class="ai-priority-list">
+                ${priorityHtml}
+            </div>
+        </section>
+    `;
 }
 
 /* 起動 */
