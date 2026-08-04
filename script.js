@@ -71,6 +71,9 @@ const resetSearchButton =
 const activeSearchConditions =
     document.getElementById("activeSearchConditions");
 
+const cardSortSelect =
+    document.getElementById("cardSortSelect");
+
 const cardList =
     document.getElementById("cardList");
 
@@ -675,10 +678,82 @@ function filterCards() {
         );
     });
 
-    renderCards(filteredCards);
-    renderActiveSearchConditions(
-        filteredCards.length
-    );
+        const sortedCards = sortCardResults(
+            filteredCards,
+            cardSortSelect?.value || "number"
+        );
+
+        renderCards(sortedCards);
+        renderActiveSearchConditions(
+            sortedCards.length
+        );
+}
+
+function sortCardResults(cardData, sortType) {
+    return [...cardData].sort((a, b) => {
+        if (sortType === "name") {
+            return String(a.name || "").localeCompare(
+                String(b.name || ""),
+                "ja"
+            );
+        }
+
+        if (sortType === "level-asc") {
+            return (
+                getSortableNumber(a.level, 999) -
+                getSortableNumber(b.level, 999) ||
+                String(a.id || "").localeCompare(
+                    String(b.id || "")
+                )
+            );
+        }
+
+        if (sortType === "level-desc") {
+            return (
+                getSortableNumber(b.level, -1) -
+                getSortableNumber(a.level, -1) ||
+                String(a.id || "").localeCompare(
+                    String(b.id || "")
+                )
+            );
+        }
+
+        if (sortType === "dp-desc") {
+            return (
+                getSortableNumber(b.dp, -1) -
+                getSortableNumber(a.dp, -1) ||
+                String(a.id || "").localeCompare(
+                    String(b.id || "")
+                )
+            );
+        }
+
+        if (sortType === "cost-asc") {
+            return (
+                getSortableNumber(a.playCost, 999) -
+                getSortableNumber(b.playCost, 999) ||
+                String(a.id || "").localeCompare(
+                    String(b.id || "")
+                )
+            );
+        }
+
+        return String(a.id || "").localeCompare(
+            String(b.id || "")
+        );
+    });
+}
+
+function getSortableNumber(value, fallback) {
+    if (!hasValue(value)) {
+        return fallback;
+    }
+
+    const number = Number(value);
+
+    return Number.isFinite(number)
+        ? number
+        : fallback;
 }
 
 function populateAdvancedFilterOptions() {
@@ -751,6 +826,10 @@ function resetAdvancedSearch() {
     playCostMax.value = "";
     dpMin.value = "";
     dpMax.value = "";
+
+    if (cardSortSelect) {
+    cardSortSelect.value = "number";
+}
 
     advancedColorFilters.forEach(
         (checkbox) => {
@@ -3524,6 +3603,11 @@ executeSearchButton.addEventListener(
 resetSearchButton.addEventListener(
     "click",
     resetAdvancedSearch
+);
+
+cardSortSelect.addEventListener(
+    "change",
+    filterCards
 );
 
 deckSearchInput.addEventListener(
