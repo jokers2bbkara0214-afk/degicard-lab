@@ -199,6 +199,20 @@ const modalCloseButton =
 const modalCardImage =
     document.getElementById("modalCardImage");
 
+const imageLightbox =
+    document.getElementById("imageLightbox");
+
+const imageLightboxImage =
+    document.getElementById("imageLightboxImage");
+
+const imageLightboxTitle =
+    document.getElementById("imageLightboxTitle");
+
+const imageLightboxCloseButton =
+    document.getElementById(
+        "imageLightboxCloseButton"
+    );
+
 const modalCardNumber =
     document.getElementById("modalCardNumber");
 
@@ -2949,6 +2963,91 @@ function closeCardModal() {
     activeModalCardId = null;
 }
 
+function openImageLightbox(cardId) {
+    const card = findCard(cardId);
+
+    if (!card) {
+        return;
+    }
+
+    const imagePath =
+        `./images/cards/${encodeURIComponent(card.id)}.webp`;
+
+    const fallbackPath =
+        "./images/cards/noimage.webp";
+
+    imageLightboxTitle.textContent =
+        `${card.name}（${card.id}）`;
+
+    imageLightboxImage.src = imagePath;
+    imageLightboxImage.alt =
+        `${card.name}のカード画像`;
+
+    imageLightboxImage.onerror = () => {
+        if (
+            imageLightboxImage.src.endsWith(
+                "noimage.webp"
+            )
+        ) {
+            return;
+        }
+
+        imageLightboxImage.src = fallbackPath;
+    };
+
+    imageLightbox.classList.add("open");
+
+    imageLightbox.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+    document.body.classList.add(
+        "image-lightbox-open"
+    );
+
+    imageLightboxCloseButton.focus();
+}
+
+function closeImageLightbox() {
+    imageLightbox.classList.remove("open");
+
+    imageLightbox.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    document.body.classList.remove(
+        "image-lightbox-open"
+    );
+
+    imageLightboxImage.removeAttribute("src");
+    imageLightboxImage.alt = "";
+}
+
+function handleImageLightboxKeyboard(event) {
+    if (
+        event.key !== "Enter" &&
+        event.key !== " "
+    ) {
+        return;
+    }
+
+    const image = event.target.closest(
+        "[data-card-image-id]"
+    );
+
+    if (!image) {
+        return;
+    }
+
+    event.preventDefault();
+
+    openImageLightbox(
+        image.dataset.cardImageId
+    );
+}
+
 function updateModalDeckQuantity() {
     if (!activeModalCardId) {
         return;
@@ -3045,6 +3144,10 @@ function createCardImageHtml(
             src="${imagePath}"
             alt="${escapeHtml(card.name || "カード画像")}"
             loading="lazy"
+            tabindex="0"
+            role="button"
+            data-card-image-id="${escapeHtml(card.id)}"
+            aria-label="${escapeHtml(card.name || "カード")}の画像を拡大表示"
             onerror="
                 if (!this.dataset.fallback) {
                     this.dataset.fallback = 'true';
@@ -3628,6 +3731,21 @@ clearDeckButton.addEventListener(
 cardList.addEventListener(
     "click",
     (event) => {
+        const imageButton =
+            event.target.closest(
+                "[data-card-image-id]"
+            );
+
+        if (imageButton) {
+            event.stopPropagation();
+
+            openImageLightbox(
+                imageButton.dataset.cardImageId
+            );
+
+            return;
+        }
+
         const addButton =
             event.target.closest(
                 "[data-add-card]"
@@ -3757,6 +3875,57 @@ modalCloseButton.addEventListener(
     closeCardModal
 );
 
+imageLightboxCloseButton.addEventListener(
+    "click",
+    closeImageLightbox
+);
+
+document
+    .querySelectorAll(
+        "[data-close-image-lightbox]"
+    )
+    .forEach((element) => {
+        element.addEventListener(
+            "click",
+            closeImageLightbox
+        );
+    });
+
+modalCardImage.addEventListener(
+    "click",
+    (event) => {
+        const image = event.target.closest(
+            "[data-card-image-id]"
+        );
+
+        if (image) {
+            openImageLightbox(
+                image.dataset.cardImageId
+            );
+        }
+    }
+);
+
+evolutionDetailImage.addEventListener(
+    "click",
+    (event) => {
+        const image = event.target.closest(
+            "[data-card-image-id]"
+        );
+
+        if (image) {
+            openImageLightbox(
+                image.dataset.cardImageId
+            );
+        }
+    }
+);
+
+document.addEventListener(
+    "keydown",
+    handleImageLightboxKeyboard
+);
+
 document
     .querySelectorAll(
         "[data-close-modal]"
@@ -3771,8 +3940,20 @@ document
 document.addEventListener(
     "keydown",
     (event) => {
+        if (event.key !== "Escape") {
+            return;
+        }
+
         if (
-            event.key === "Escape" &&
+            imageLightbox.classList.contains(
+                "open"
+            )
+        ) {
+            closeImageLightbox();
+            return;
+        }
+
+        if (
             cardModal.classList.contains(
                 "open"
             )
@@ -3805,6 +3986,21 @@ evolutionCardSelect.addEventListener(
 evolutionTree.addEventListener(
     "click",
     (event) => {
+
+        const imageButton =
+            event.target.closest(
+                "[data-card-image-id]"
+            );
+
+        if (imageButton) {
+            event.stopPropagation();
+
+            openImageLightbox(
+                imageButton.dataset.cardImageId
+            );
+
+            return;
+        }
 
         const node =
             event.target.closest(
