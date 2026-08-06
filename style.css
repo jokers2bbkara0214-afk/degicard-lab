@@ -2982,3 +2982,25 @@ line-height:2;
         grid-template-columns: 1fr;
     }
 }
+/* =========================================================
+   Version表示
+========================================================= */
+
+.app-version {
+    margin-top: 40px;
+    padding-top: 24px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.app-version p {
+    margin-bottom: 4px;
+    color: var(--sub-text);
+    font-size: 12px;
+}
+
+.app-version span {
+    color: #8b949e;
+    font-size: 12px;
+    font-weight: 500;
+}
